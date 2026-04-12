@@ -1,9 +1,9 @@
 """riskforge export — export the risk management file."""
 from __future__ import annotations
-from typing import Optional
 
 import asyncio
 from pathlib import Path
+from typing import Optional  # noqa: UP007 — Typer 0.12.3 compat
 
 import typer
 from rich.console import Console

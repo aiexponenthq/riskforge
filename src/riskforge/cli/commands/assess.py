@@ -2,7 +2,7 @@
 import asyncio
 from datetime import UTC, datetime, timedelta
 from pathlib import Path
-from typing import Optional
+from typing import Optional  # noqa: UP007 — Typer 0.12.3 compat
 
 import typer
 from rich.console import Console
@@ -247,7 +247,6 @@ async def _run_assess(
             )
 
             # ── Question display ────────────────────────────────────────────
-            qid = question.get("id", "")
             console.print(f"\n  [bold]{question['text']}[/bold]")
             if question.get("guidance"):
                 console.print(f"  [dim italic]{question['guidance']}[/dim italic]")
