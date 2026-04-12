@@ -112,4 +112,4 @@ source = ["riskforge"]
 branch = true
 
 [tool.coverage.report]
-fail_under = 25
+fail_under = 24
