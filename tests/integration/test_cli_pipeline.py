@@ -19,18 +19,28 @@ from pathlib import Path
 
 import pytest
 
-# Locate the riskforge binary — works in both editable and non-editable installs
-_RF_BIN = shutil.which("riskforge") or str(Path(sys.executable).parent / "riskforge")
+# Use sys.executable-relative path for the binary — reliable in all install modes.
+# sys.executable gives /path/to/venv/bin/python; the CLI entry point is in the same bin/.
+_RF_BIN = str(Path(sys.executable).parent / "riskforge")
+if not Path(_RF_BIN).exists():
+    _RF_BIN = shutil.which("riskforge") or _RF_BIN
 
 
 def _run(args: list[str], cwd: str | None = None) -> subprocess.CompletedProcess:
-    """Run riskforge <args> and return the completed process."""
-    return subprocess.run(
+    """Run riskforge <args> and return the completed process.
+
+    Returns a CompletedProcess with a combined .output attribute (stdout + stderr)
+    because Rich Console may write to either stream depending on TTY detection.
+    """
+    result = subprocess.run(
         [_RF_BIN] + args,
         capture_output=True,
         text=True,
         cwd=cwd,
     )
+    # Attach combined output for convenience (Rich sometimes writes to stderr in CI)
+    result.output = result.stdout + result.stderr  # type: ignore[attr-defined]
+    return result
 
 
 def _init_project(tmp_dir: Path, name: str = "Pipeline Test System") -> str:
@@ -46,10 +56,10 @@ def _init_project(tmp_dir: Path, name: str = "Pipeline Test System") -> str:
     ])
     assert result.returncode == 0, f"init failed:\nSTDOUT:{result.stdout}\nSTDERR:{result.stderr}"
     sid = next(
-        (line.split(":", 1)[-1].strip() for line in result.stdout.splitlines() if "System ID:" in line),
+        (line.split(":", 1)[-1].strip() for line in result.output.splitlines() if "System ID:" in line),
         None,
     )
-    assert sid, f"Could not extract system ID from:\n{result.stdout}"
+    assert sid, f"Could not extract system ID from:\n{result.output}"
     return sid
 
 
@@ -102,8 +112,8 @@ def test_version_shows_zero_telemetry() -> None:
     """riskforge --version must include the zero-telemetry trust signal."""
     result = _run(["--version"])
     assert result.returncode == 0, f"--version failed:\n{result.stderr}"
-    assert "Zero telemetry" in result.stdout
-    assert "Apache 2.0" in result.stdout
+    assert "Zero telemetry" in result.output
+    assert "Apache 2.0" in result.output
 
 
 @pytest.mark.enable_socket
@@ -164,7 +174,7 @@ def test_full_pipeline_init_validate_export_verify() -> None:
         assert verify_result.returncode == 0, (
             f"verify failed (chain corrupt):\n{verify_result.stdout}"
         )
-        assert "verified" in verify_result.stdout.lower()
+        assert "verified" in (verify_result.stdout + verify_result.stderr).lower()
 
 
 @pytest.mark.enable_socket
@@ -200,4 +210,4 @@ def test_risk_list_shows_seeded_items() -> None:
 
         result = _run(["risk", "list", sid, "--project-dir", str(d)])
         assert result.returncode == 0, f"risk list failed:\n{result.stderr}"
-        assert "privacy" in result.stdout.lower()
+        assert "privacy" in (result.stdout + result.stderr).lower()
