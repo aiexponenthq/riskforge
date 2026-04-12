@@ -32,7 +32,7 @@ class AuditEngine:
         return last
 
     async def _next_seq(self) -> int:
-        last = 0
+        last = -1  # first entry will have seq=0
         async for entry in self._storage.read_audit():
             last = entry.seq
         return last + 1

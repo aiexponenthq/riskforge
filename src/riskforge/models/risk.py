@@ -40,12 +40,7 @@ class RiskDimension(str, Enum):
     human_oversight = "human_oversight"
     robustness = "robustness"
     data_governance = "data_governance"
-    # Additional EU AI Act / NIST AI RMF dimensions
-    accuracy = "accuracy"
-    bias_fairness = "bias_fairness"
-    security = "security"
-    accountability = "accountability"
-    safety = "safety"
+    # 8 dimensions only — matches the question bank YAML files and PRD spec
 
 
 class Mitigation(BaseModel):

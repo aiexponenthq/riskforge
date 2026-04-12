@@ -1,5 +1,6 @@
 """riskforge export — export the risk management file."""
 from __future__ import annotations
+from typing import Optional
 
 import asyncio
 from pathlib import Path
@@ -13,9 +14,9 @@ console = Console()
 def cmd(
     system_id: str = typer.Argument(..., help="System ID to export"),
     fmt: str = typer.Option("json", "--format", "-f", help="Export format: json, pdf, markdown"),
-    output: Path | None = typer.Option(None, "--output", "-o", help="Output file path"),
+    output: Optional[Path] = typer.Option(None, "--output", "-o", help="Output file path"),
     project_dir: Path = typer.Option(Path("."), "--project-dir"),
-    sign: Path | None = typer.Option(None, "--sign", help="PGP key path for signing"),
+    sign: Optional[Path] = typer.Option(None, "--sign", help="PGP key path for signing"),
     force: bool = typer.Option(False, "--force", help="Skip validation gates"),
 ) -> None:
     """Export the Risk Management File to JSON, PDF, or Markdown.
