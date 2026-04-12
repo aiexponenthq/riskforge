@@ -31,8 +31,10 @@ jobs:
           bandit -ll -r src/ --exit-zero
           pip-audit --strict || true
 
-      - name: Run full test suite
-        run: pytest --cov
+      - name: Run unit, contract and boundary tests
+        # Integration tests require a TTY-aware subprocess; CI workflow covers them.
+        # Release pipeline runs the fast, reliable test tiers only.
+        run: pytest --cov --ignore=tests/integration/
 
       - name: Build wheel + sdist
         run: python -m build
