@@ -66,6 +66,7 @@ def _init_project(tmp_dir: Path, name: str = "Pipeline Test System") -> str:
 def _seed_register(tmp_dir: Path, sid: str, one_dim: bool = False) -> None:
     """Seed a register directly via the engine (bypasses interactive assess)."""
     import asyncio
+
     from riskforge.engine.audit import AuditEngine
     from riskforge.engine.risk import RiskEngine
     from riskforge.models.audit import AuditActor

@@ -98,6 +98,8 @@ ignore = [
     "S101",   # assert in tests
     "B008",   # typer.Option/Argument in function defaults — required by Typer
     "B904",   # raise-without-from-inside-except — many CLI handlers intentionally reraise
+    "UP007",  # X | Y union syntax — Typer 0.12.3 requires Optional[X]
+    "UP045",  # same rule, renamed in ruff 0.15+ — Typer 0.12.3 compat
     "UP042",  # str+Enum inheritance — intentional for JSON/YAML string serialisation
     "E501",   # line too long — handled by formatter; some long strings are unavoidable
 ]

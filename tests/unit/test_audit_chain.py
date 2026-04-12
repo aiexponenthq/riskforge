@@ -185,6 +185,7 @@ def test_assess_engine_knowledge_gap_flag() -> None:
 def test_pdf_exporter_uses_items_not_system() -> None:
     """PDFExporter must pass register.items (not register.system) to the template."""
     import inspect
+
     from riskforge.exporters.pdf.pdf_exporter import PDFExporter
 
     source = inspect.getsource(PDFExporter.render)
