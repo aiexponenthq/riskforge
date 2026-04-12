@@ -2,7 +2,6 @@
 from __future__ import annotations
 
 import typer
-from rich import print as rprint
 
 app = typer.Typer(
     name="riskforge",
@@ -19,8 +18,8 @@ def main(
     if version:
         from importlib.metadata import version as pkg_version
 
-        rprint(
-            f"[bold]RiskForge[/bold] v{pkg_version('riskforge')} | "
+        typer.echo(
+            f"RiskForge v{pkg_version('riskforge')} | "
             "Apache 2.0 | Zero telemetry | aiexponent.com"
         )
         raise typer.Exit()
