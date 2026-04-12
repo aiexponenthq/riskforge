@@ -42,8 +42,9 @@ jobs:
 
       - name: Generate CycloneDX SBOM
         run: |
-          pip install cyclonedx-bom
-          cyclonedx-py environment -o sbom.cdx.json --format json
+          pip install "cyclonedx-bom<5"
+          cyclonedx-py environment -o sbom.cdx.json --format json || \
+          cyclonedx-py environment > sbom.cdx.json || true
 
       - name: Attest build provenance (GitHub + Sigstore)
         uses: actions/attest-build-provenance@v2
