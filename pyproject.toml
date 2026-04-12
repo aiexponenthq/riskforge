@@ -98,11 +98,16 @@ ignore = [
     "S101",   # assert in tests
     "B008",   # typer.Option/Argument in function defaults — required by Typer
     "B904",   # raise-without-from-inside-except — many CLI handlers intentionally reraise
-    "UP007",  # X | Y union syntax — Typer 0.12.3 requires Optional[X]
-    "UP045",  # same rule, renamed in ruff 0.15+ — Typer 0.12.3 compat
     "UP042",  # str+Enum inheritance — intentional for JSON/YAML string serialisation
     "E501",   # line too long — handled by formatter; some long strings are unavoidable
 ]
+
+[tool.ruff.lint.per-file-ignores]
+# Typer 0.12.3 requires Optional[X] — str | None (types.UnionType) raises RuntimeError.
+# UP007 suppresses Optional[X]→X|None in ruff <0.15 (CI uses ruff 0.4.4).
+# ruff 0.15+ renamed this to UP045; UP045 is intentionally absent here because
+# ruff 0.4.4 would fail on an unknown rule selector. Accept UP045 warnings locally.
+"src/riskforge/cli/commands/*.py" = ["UP007"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

@@ -12,7 +12,7 @@ console = Console()
 
 def cmd(
     name: str = typer.Option(..., "--name", "-n", help="AI system name"),
-    version: str = typer.Option(..., "--version", "-v", help="AI system version"),
+    version: str = typer.Option(..., "--sys-version", "-s", help="AI system version (e.g. '1.0')"),
     purpose: str = typer.Option(..., "--purpose", "-p", help="One-sentence purpose statement"),
     provider: str = typer.Option(..., "--provider", help="Provider organisation name"),
     category: Optional[str] = typer.Option(

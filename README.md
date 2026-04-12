@@ -27,7 +27,7 @@ pip install riskforge
 # 1. Register your AI system
 riskforge init \
   --name "Loan Scoring Model" \
-  --version "2.1" \
+  --sys-version "2.1" \
   --purpose "Automated credit scoring for retail loan applications." \
   --provider "Acme Financial Services" \
   --category essential_services
