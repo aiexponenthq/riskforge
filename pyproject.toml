@@ -42,7 +42,7 @@ dependencies = [
     "questionary==2.0.1",
     "keyring==25.2.1",
     "python-dotenv==1.0.1",
-    "packaging==24.0",
+    "packaging>=24.0",
 ]
 
 [project.optional-dependencies]
