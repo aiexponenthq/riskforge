@@ -23,13 +23,6 @@ classifiers = [
     "Topic :: Security",
     "Topic :: Software Development :: Quality Assurance",
 ]
-
-[project.urls]
-Homepage      = "https://github.com/aiexponenthq/riskforge"
-Repository    = "https://github.com/aiexponenthq/riskforge.git"
-Documentation = "https://github.com/aiexponenthq/riskforge#readme"
-Issues        = "https://github.com/aiexponenthq/riskforge/issues"
-Changelog     = "https://github.com/aiexponenthq/riskforge/releases"
 dependencies = [
     "typer[all]==0.12.3",
     "pydantic==2.7.1",
@@ -44,6 +37,13 @@ dependencies = [
     "python-dotenv==1.0.1",
     "packaging>=24.0",
 ]
+
+[project.urls]
+Homepage      = "https://github.com/aiexponenthq/riskforge"
+Repository    = "https://github.com/aiexponenthq/riskforge.git"
+Documentation = "https://github.com/aiexponenthq/riskforge#readme"
+Issues        = "https://github.com/aiexponenthq/riskforge/issues"
+Changelog     = "https://github.com/aiexponenthq/riskforge/releases"
 
 [project.optional-dependencies]
 server = [
