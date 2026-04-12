@@ -6,8 +6,8 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from riskforge.server.middleware import CorrelationMiddleware
 from riskforge.server.metrics import setup_metrics
+from riskforge.server.middleware import CorrelationMiddleware
 from riskforge.server.routers import exports, health, registers, risks, webhooks
 
 

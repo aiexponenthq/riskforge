@@ -2,7 +2,6 @@
 from __future__ import annotations
 
 from pathlib import Path
-from typing import Optional
 
 import typer
 from rich.console import Console
@@ -15,7 +14,7 @@ def cmd(
     version: str = typer.Option(..., "--version", "-v", help="AI system version"),
     purpose: str = typer.Option(..., "--purpose", "-p", help="One-sentence purpose statement"),
     provider: str = typer.Option(..., "--provider", help="Provider organisation name"),
-    category: Optional[str] = typer.Option(
+    category: str | None = typer.Option(
         None, "--category", "-c", help="Annex III category"
     ),
     project_dir: Path = typer.Option(Path("."), "--project-dir", help="Project directory"),
@@ -31,7 +30,6 @@ def cmd(
     import asyncio
     import uuid
 
-    from riskforge.models.audit import AuditActor
     from riskforge.models.system import AISystem, AnnexIIICategory
     from riskforge.storage.filesystem import FileStore
 

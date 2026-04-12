@@ -3,8 +3,6 @@ from __future__ import annotations
 
 import datetime
 
-import pytest
-
 from riskforge.engine.validate import GateStatus, ValidateEngine
 from riskforge.models.register import RiskRegister
 from riskforge.models.risk import Likelihood, RiskDimension, RiskItem, Severity

@@ -3,7 +3,6 @@ from __future__ import annotations
 
 import asyncio
 from pathlib import Path
-from typing import Optional
 
 import typer
 from rich.console import Console
@@ -14,9 +13,9 @@ console = Console()
 def cmd(
     system_id: str = typer.Argument(..., help="System ID to export"),
     fmt: str = typer.Option("json", "--format", "-f", help="Export format: json, pdf, markdown"),
-    output: Optional[Path] = typer.Option(None, "--output", "-o", help="Output file path"),
+    output: Path | None = typer.Option(None, "--output", "-o", help="Output file path"),
     project_dir: Path = typer.Option(Path("."), "--project-dir"),
-    sign: Optional[Path] = typer.Option(None, "--sign", help="PGP key path for signing"),
+    sign: Path | None = typer.Option(None, "--sign", help="PGP key path for signing"),
     force: bool = typer.Option(False, "--force", help="Skip validation gates"),
 ) -> None:
     """Export the Risk Management File to JSON, PDF, or Markdown.
@@ -24,6 +23,7 @@ def cmd(
     The export is SHA-256 signed, schema-validated, and linked to the
     audit trail. The output file is written with chmod 600.
     """
+
     from riskforge.engine.audit import AuditEngine
     from riskforge.engine.export import ExportEngine
     from riskforge.engine.validate import ValidateEngine
@@ -31,7 +31,6 @@ def cmd(
     from riskforge.models.rmf import RiskManagementFile
     from riskforge.plugins.registry import PluginRegistry
     from riskforge.storage.filesystem import FileStore
-    import uuid
 
     store = FileStore(project_dir)
     register = asyncio.run(store.read_register(system_id))

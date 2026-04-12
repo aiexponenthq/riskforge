@@ -3,7 +3,6 @@ from __future__ import annotations
 
 import hashlib
 import hmac
-import secrets
 
 from fastapi import HTTPException, Security, status
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
