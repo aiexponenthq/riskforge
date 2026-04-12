@@ -1,0 +1,124 @@
+name: CI
+
+on:
+  push:
+    branches: ["main", "develop"]
+  pull_request:
+    branches: ["main"]
+
+permissions:
+  contents: read
+
+jobs:
+  lint:
+    name: Lint & Format
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+
+      - name: Install ruff
+        run: pip install ruff==0.4.4
+
+      - name: Lint
+        run: ruff check src/ tests/
+
+      - name: Format check
+        run: ruff format --check src/ tests/
+
+  test:
+    name: Test (Python ${{ matrix.python-version }})
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ["3.11", "3.12"]
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+          cache: pip
+
+      - name: Install WeasyPrint system dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libpango-1.0-0 libpangocairo-1.0-0 libcairo2 \
+            libgdk-pixbuf2.0-0 libffi-dev shared-mime-info
+
+      - name: Install RiskForge with dev extras
+        run: pip install -e ".[dev]"
+
+      - name: Run test suite
+        run: pytest --cov --cov-report=xml --cov-report=term-missing
+
+      - name: Upload coverage to Codecov
+        if: matrix.python-version == '3.11'
+        uses: codecov/codecov-action@v4
+        with:
+          files: ./coverage.xml
+          fail_ci_if_error: false
+
+  schema-validate:
+    name: Schema Validation
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+
+      - name: Install jsonschema
+        run: pip install jsonschema
+
+      - name: Validate rmf.schema.json is valid JSON Schema
+        run: |
+          python -c "
+          import json, jsonschema
+          schema = json.load(open('src/riskforge/_data/schemas/rmf.schema.json'))
+          jsonschema.Draft202012Validator.check_schema(schema)
+          print('Schema valid:', schema.get('\$id'))
+          "
+
+  security:
+    name: Security Scan
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+
+      - name: Install security tools
+        run: pip install bandit pip-audit
+
+      - name: Static security analysis
+        run: bandit -ll -r src/ --exit-zero
+
+      - name: Dependency vulnerability audit
+        run: pip install -e ".[dev]" && pip-audit --strict || true
+
+  boundary-test:
+    name: Import Boundary Enforcement (ADR-02)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+
+      - name: Install RiskForge
+        run: pip install -e ".[test]"
+
+      - name: Run boundary tests
+        run: pytest tests/boundary/ -v

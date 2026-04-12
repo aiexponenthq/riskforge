@@ -1,0 +1,57 @@
+schema_version: "1.0.0"
+dimension: data_governance
+questions:
+  - id: DG-001
+    text: "Is the provenance of all training, validation, and test datasets documented (source, collection date, license, version)?"
+    guidance: "Article 10(2) requires data governance practices including documentation of dataset provenance. TraceForge can automate this."
+    annex_iii_categories: [employment, education, law_enforcement, essential_services, biometric]
+    default_likelihood_hint: 2
+    default_severity_hint: 3
+    article_refs: ["Art.10(2)", "Art.10(3)"]
+    nist_rmf_ref: "GOVERN 1.7"
+    iso42001_ref: "Clause A.8"
+    regulatory_status: settled
+
+  - id: DG-002
+    text: "Have dataset licenses been reviewed to confirm lawful use for the intended AI application (including commercial use rights)?"
+    guidance: "Many public datasets have restrictive licenses that prohibit commercial use or redistribution. Legal review is required."
+    annex_iii_categories: [employment, education, law_enforcement]
+    default_likelihood_hint: 3
+    default_severity_hint: 3
+    article_refs: ["Art.10(2)", "Art.10(3)"]
+    nist_rmf_ref: "GOVERN 1.7"
+    iso42001_ref: "Clause A.8"
+    regulatory_status: settled
+
+  - id: DG-003
+    text: "Are data quality checks (completeness, consistency, accuracy) applied and documented before training and fine-tuning?"
+    guidance: "Article 10(2)(e) requires data governance practices including data quality assessment."
+    annex_iii_categories: [employment, education, law_enforcement, essential_services]
+    default_likelihood_hint: 2
+    default_severity_hint: 3
+    article_refs: ["Art.10(2)(e)"]
+    nist_rmf_ref: "GOVERN 1.7"
+    iso42001_ref: "Clause A.8"
+    regulatory_status: settled
+
+  - id: DG-004
+    text: "Is there a data retention and deletion schedule that covers both training data and inference logs?"
+    guidance: "Data retained beyond its purpose creates ongoing legal and privacy risk. GDPR Article 5(1)(e) requires storage limitation."
+    annex_iii_categories: [law_enforcement, employment, biometric, essential_services]
+    default_likelihood_hint: 2
+    default_severity_hint: 2
+    article_refs: ["Art.10(3)"]
+    nist_rmf_ref: "GOVERN 1.6"
+    iso42001_ref: "Clause A.8"
+    regulatory_status: settled
+
+  - id: DG-005
+    text: "Is there a data pipeline version control system ensuring reproducibility of training runs from a specific dataset version?"
+    guidance: "Reproducibility is essential for audit purposes. If a model must be retrained to fix a defect, the exact training conditions must be recoverable."
+    annex_iii_categories: [employment, law_enforcement, essential_services]
+    default_likelihood_hint: 2
+    default_severity_hint: 3
+    article_refs: ["Art.10", "Art.11"]
+    nist_rmf_ref: "GOVERN 1.7"
+    iso42001_ref: "Clause A.8"
+    regulatory_status: settled

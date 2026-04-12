@@ -1,0 +1,13 @@
+{
+  "schema_version": "1.0.0",
+  "pipeline_id": "rag-pipeline-001",
+  "evaluated_at": "2026-04-01T12:00:00Z",
+  "metrics": {
+    "faithfulness": 0.72,
+    "answer_relevance": 0.78,
+    "context_recall": 0.81,
+    "context_precision": 0.88
+  },
+  "dataset": "finance-qa-v2",
+  "model": "gpt-4o-mini"
+}

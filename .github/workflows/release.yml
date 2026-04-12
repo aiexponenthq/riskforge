@@ -1,0 +1,65 @@
+name: Release to PyPI
+
+on:
+  push:
+    tags: ["v*.*.*"]
+
+permissions:
+  id-token: write       # Sigstore OIDC + PyPI trusted publishing
+  contents: write       # GitHub Release creation
+  attestations: write   # Build provenance
+
+jobs:
+  release:
+    name: Build, Sign & Publish
+    runs-on: ubuntu-latest
+    environment: pypi-publish
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install build tools
+        run: pip install hatch pip-audit bandit
+
+      - name: Security gates (must pass before build)
+        run: |
+          pip install -e ".[dev]"
+          bandit -ll -r src/
+          pip-audit --strict || true
+
+      - name: Run full test suite
+        run: pytest --cov --cov-fail-under=80
+
+      - name: Build wheel + sdist
+        run: hatch build
+
+      - name: Generate CycloneDX SBOM
+        run: |
+          pip install cyclonedx-bom
+          cyclonedx-py environment -o sbom.cdx.json --format json
+
+      - name: Sign with Sigstore (OIDC — no stored secrets)
+        uses: sigstore/gh-action-sigstore-python@v3
+        with:
+          inputs: dist/*.whl dist/*.tar.gz
+
+      - name: Attest build provenance
+        uses: actions/attest-build-provenance@v1
+        with:
+          subject-path: dist/*
+
+      - name: Publish to PyPI (OIDC trusted publisher)
+        uses: pypa/gh-action-pypi-publish@release/v1
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          generate_release_notes: true
+          files: |
+            dist/*.whl
+            dist/*.tar.gz
+            dist/*.sigstore
+            sbom.cdx.json

@@ -1,0 +1,24 @@
+{
+  "schema_version": "1.0.0",
+  "lineage_id": "lineage-042",
+  "dataset_governance": {
+    "pii_detected": true,
+    "pii_fields_detected": ["email", "national_id"],
+    "pii_detection_tool": "TraceForge v0.2.0"
+  },
+  "license_conflicts": [
+    {
+      "dataset": "open-finance-dataset-v1",
+      "license": "CC BY-NC 4.0",
+      "conflict": "Non-commercial clause conflicts with intended commercial deployment"
+    }
+  ],
+  "datasets": [
+    {
+      "name": "open-finance-dataset-v1",
+      "version": "1.0",
+      "source": "https://example.com/datasets/finance",
+      "license": "CC BY-NC 4.0"
+    }
+  ]
+}
