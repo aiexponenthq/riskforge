@@ -6,6 +6,28 @@ Versioning: [Semantic Versioning](https://semver.org/)
 
 ## [Unreleased]
 
+## [0.1.2] - 2026-04-12
+
+### Added
+- `LICENSE` file (Apache 2.0 full text) — previously only in pyproject.toml
+- Root-level `CONTRIBUTING.md` — was missing despite README linking to it
+- `CODE_OF_CONDUCT.md` (Contributor Covenant 2.1)
+- `SECURITY.md` — vulnerability disclosure policy, scope, security design notes
+- `.github/ISSUE_TEMPLATE/` — bug report and question bank contribution templates
+- `.github/PULL_REQUEST_TEMPLATE.md`
+- `src/riskforge/__main__.py` — enables `python -m riskforge` invocation
+- `pyproject.toml`: Python 3.12 classifier, `[project.urls]` (Homepage, Repository, Issues, Changelog)
+- Full integration test suite — `init → seed → validate → export json → verify → export markdown`
+
+### Fixed
+- `RiskManagementFile.register` property — `rmf.register` was raising `AttributeError`
+  (Python attribute is `risk_register`; alias only applies to serialisation)
+- `ExportEngine` and `JSONExporter` — added `by_alias=True` to `model_dump()` so
+  `risk_register` serialises as `register` per the published schema
+- README — corrected GitHub org URLs (`aiexponent` → `aiexponenthq`); fixed quick start
+  to show actual required args for `riskforge init` and `riskforge assess`
+- Test count: 53 → 57
+
 ## [0.1.1] - 2026-04-12
 
 ### Fixed

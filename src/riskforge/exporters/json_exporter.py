@@ -15,5 +15,5 @@ class JSONExporter(Exporter):
     """
 
     def render(self, rmf: RiskManagementFile) -> bytes:
-        data = rmf.model_dump(mode="json")
+        data = rmf.model_dump(mode="json", by_alias=True)
         return json.dumps(data, indent=2, sort_keys=False, ensure_ascii=False).encode("utf-8")

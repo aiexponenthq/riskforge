@@ -44,6 +44,11 @@ class RiskManagementFile(BaseModel):
     id: UUID = Field(default_factory=uuid4)
     rmf_schema_version: str = "1.0.0"
     risk_register: RiskRegister = Field(alias="register", serialization_alias="register")
+
+    @property
+    def register(self) -> RiskRegister:
+        """Convenience alias for risk_register — matches the JSON serialisation key."""
+        return self.risk_register
     test_requirements: list[TestRequirement] = Field(default_factory=list)
     cross_references: list[CrossReference] = Field(default_factory=list)
     generated_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
