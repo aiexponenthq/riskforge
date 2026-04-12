@@ -21,7 +21,7 @@ def cmd(
     All FAIL gates must pass before riskforge export will proceed
     (unless --force is supplied). WARN gates are advisory.
     """
-    from riskforge.engine.validate import GateStatus, ValidateEngine
+    from riskforge.engine.validate import ValidateEngine
     from riskforge.storage.filesystem import FileStore
 
     store = FileStore(project_dir)

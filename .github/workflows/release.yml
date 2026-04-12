@@ -41,13 +41,13 @@ jobs:
           pip install cyclonedx-bom
           cyclonedx-py environment -o sbom.cdx.json --format json
 
-      - name: Sign with Sigstore (OIDC — no stored secrets)
-        uses: sigstore/gh-action-sigstore-python@v3
+      - name: Sign with Sigstore (OIDC)
+        uses: sigstore/gh-action-sigstore-python@v2.1.1
         with:
           inputs: dist/*.whl dist/*.tar.gz
 
       - name: Attest build provenance
-        uses: actions/attest-build-provenance@v1
+        uses: actions/attest-build-provenance@v2
         with:
           subject-path: dist/*
 

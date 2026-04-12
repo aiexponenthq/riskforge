@@ -81,8 +81,16 @@ packages = ["src/riskforge"]
 [tool.ruff]
 line-length = 100
 target-version = "py311"
+
+[tool.ruff.lint]
 select = ["E", "F", "I", "UP", "B"]
-ignore = ["S101"]
+ignore = [
+    "S101",   # assert in tests
+    "B008",   # typer.Option/Argument in function defaults — required by Typer
+    "B904",   # raise-without-from-inside-except — many CLI handlers intentionally reraise
+    "UP042",  # str+Enum inheritance — intentional for JSON/YAML string serialisation
+    "E501",   # line too long — handled by formatter; some long strings are unavoidable
+]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

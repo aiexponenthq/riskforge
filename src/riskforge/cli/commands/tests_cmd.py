@@ -6,7 +6,6 @@ from pathlib import Path
 
 import typer
 from rich.console import Console
-from rich.table import Table
 
 app = typer.Typer(help="Derive and list Article 9(7) test requirements.")
 console = Console()

@@ -42,8 +42,8 @@ import os
 import stat
 import subprocess
 import warnings
+from collections.abc import AsyncIterator
 from pathlib import Path
-from typing import AsyncIterator
 
 import yaml
 

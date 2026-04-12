@@ -17,9 +17,11 @@ def show_system(
     project_dir: Path = typer.Option(Path("."), "--project-dir"),
 ) -> None:
     """Show the AI system metadata."""
-    from rich import print_json
-    from riskforge.storage.filesystem import FileStore
     import json
+
+    from rich import print_json
+
+    from riskforge.storage.filesystem import FileStore
 
     store = FileStore(project_dir)
     system = asyncio.run(store.read_system(system_id))

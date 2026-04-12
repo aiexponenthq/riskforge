@@ -81,8 +81,9 @@ class ExportEngine:
         return output_path
 
     def _validate_schema(self, rmf: RiskManagementFile) -> None:
-        import jsonschema
         from importlib.resources import files
+
+        import jsonschema
 
         schema_text = (
             files("riskforge._data.schemas").joinpath("rmf.schema.json").read_text()

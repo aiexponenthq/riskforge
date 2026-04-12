@@ -37,7 +37,7 @@ def test_engine_does_not_import_cli(module: str) -> None:
     """Engine module must not directly import from riskforge.cli.*"""
     m = importlib.import_module(module)
     # Check globals for any reference to cli submodules
-    for name, obj in vars(m).items():
+    for _name, obj in vars(m).items():
         if hasattr(obj, "__module__") and obj.__module__ is not None:
             assert "riskforge.cli" not in obj.__module__, (
                 f"{module} imports {obj.__module__} from riskforge.cli — "
@@ -55,7 +55,7 @@ def test_engine_does_not_import_cli(module: str) -> None:
 def test_engine_does_not_import_server(module: str) -> None:
     """Engine module must not directly import from riskforge.server.*"""
     m = importlib.import_module(module)
-    for name, obj in vars(m).items():
+    for _name, obj in vars(m).items():
         if hasattr(obj, "__module__") and obj.__module__ is not None:
             assert "riskforge.server" not in obj.__module__, (
                 f"{module} imports {obj.__module__} from riskforge.server — "

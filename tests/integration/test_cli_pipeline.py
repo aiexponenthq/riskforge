@@ -4,8 +4,6 @@ from __future__ import annotations
 import subprocess
 import sys
 
-import pytest
-
 
 def test_riskforge_version_output():
     """riskforge --version outputs the zero-telemetry trust signal."""

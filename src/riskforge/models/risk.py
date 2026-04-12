@@ -8,7 +8,6 @@ from uuid import UUID, uuid4
 
 from pydantic import BaseModel, Field, computed_field, field_validator
 
-
 VAGUE_PHRASES = frozenset({
     "we'll monitor it", "will monitor", "to be determined", "tbd", "n/a",
     "will address later", "monitor", "ongoing", "review", "future work",
