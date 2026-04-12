@@ -1,0 +1,184 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.aiexponent.com/riskforge/rmf/v1.0.0",
+  "title": "RiskManagementFile",
+  "description": "EU AI Act Article 9 Risk Management File — produced by RiskForge v0.1.0",
+  "type": "object",
+  "required": ["id", "rmf_schema_version", "register", "generated_at", "sha256_hash"],
+  "properties": {
+    "id": {
+      "type": "string",
+      "format": "uuid",
+      "description": "Unique identifier for this RMF export"
+    },
+    "rmf_schema_version": {
+      "type": "string",
+      "pattern": "^\\d+\\.\\d+\\.\\d+$",
+      "description": "Schema version of this document (semver)"
+    },
+    "register": {
+      "$ref": "#/$defs/RiskRegister"
+    },
+    "test_requirements": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/TestRequirement" },
+      "default": []
+    },
+    "cross_references": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/CrossReference" },
+      "default": []
+    },
+    "generated_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "sha256_hash": {
+      "type": "string",
+      "description": "SHA-256 of canonical JSON (with this field set to empty string during computation)"
+    },
+    "signed_by": {
+      "type": "string",
+      "default": ""
+    },
+    "audit_entry_hash": {
+      "type": "string",
+      "default": ""
+    },
+    "disclosure": {
+      "type": "string"
+    }
+  },
+  "additionalProperties": false,
+  "$defs": {
+    "RiskRegister": {
+      "type": "object",
+      "required": ["id", "system", "assessor_name", "assessor_role", "assessment_date", "review_date", "question_bank_version"],
+      "properties": {
+        "id": { "type": "string", "format": "uuid" },
+        "system": { "$ref": "#/$defs/AISystem" },
+        "items": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/RiskItem" },
+          "default": []
+        },
+        "risk_appetite_threshold": { "type": "integer", "minimum": 1, "maximum": 25, "default": 9 },
+        "assessor_name": { "type": "string", "minLength": 1 },
+        "assessor_role": { "type": "string", "minLength": 1 },
+        "assessment_date": { "type": "string", "format": "date-time" },
+        "review_date": { "type": "string", "format": "date-time" },
+        "question_bank_version": { "type": "string" },
+        "schema_version": { "type": "string", "default": "1.0.0" }
+      },
+      "additionalProperties": false
+    },
+    "AISystem": {
+      "type": "object",
+      "required": ["id", "name", "version", "purpose", "provider_name"],
+      "properties": {
+        "id": { "type": "string", "format": "uuid" },
+        "name": { "type": "string", "minLength": 1 },
+        "version": { "type": "string" },
+        "purpose": { "type": "string", "minLength": 1 },
+        "intended_users": { "type": "array", "items": { "type": "string" } },
+        "inputs": { "type": "array", "items": { "type": "string" } },
+        "outputs": { "type": "array", "items": { "type": "string" } },
+        "deployment_context": { "type": "string", "default": "" },
+        "annex_iii_category": {
+          "oneOf": [
+            { "type": "null" },
+            {
+              "type": "string",
+              "enum": ["biometric", "critical_infrastructure", "education", "employment", "essential_services", "law_enforcement", "migration", "justice"]
+            }
+          ]
+        },
+        "annex_iii_self_classification_documented": { "type": "boolean", "default": false },
+        "provider_name": { "type": "string", "minLength": 1 },
+        "provider_contact": { "type": "string", "default": "" },
+        "created_at": { "type": "string", "format": "date-time" },
+        "schema_version": { "type": "string", "default": "1.0.0" }
+      },
+      "additionalProperties": false
+    },
+    "RiskItem": {
+      "type": "object",
+      "required": ["id", "dimension", "title", "description", "source", "likelihood", "severity", "residual_likelihood", "residual_severity"],
+      "properties": {
+        "id": { "type": "string", "format": "uuid" },
+        "dimension": {
+          "type": "string",
+          "enum": ["health_safety", "fundamental_rights", "discrimination", "privacy", "transparency", "human_oversight", "robustness", "data_governance"]
+        },
+        "title": { "type": "string", "minLength": 1 },
+        "description": { "type": "string" },
+        "source": {
+          "type": "string",
+          "enum": ["manual", "question_bank", "pattern", "traceforge", "rag_benchmarking"]
+        },
+        "likelihood": { "type": "integer", "minimum": 1, "maximum": 5 },
+        "severity": { "type": "integer", "minimum": 1, "maximum": 5 },
+        "risk_score": { "type": "integer", "minimum": 1, "maximum": 25 },
+        "risk_band": { "type": "string", "enum": ["low", "medium", "high", "critical"] },
+        "residual_likelihood": { "type": "integer", "minimum": 1, "maximum": 5 },
+        "residual_severity": { "type": "integer", "minimum": 1, "maximum": 5 },
+        "residual_risk_score": { "type": "integer", "minimum": 1, "maximum": 25 },
+        "mitigations": { "type": "array", "items": { "$ref": "#/$defs/Mitigation" }, "default": [] },
+        "accepted": { "type": "boolean", "default": false },
+        "acceptance_rationale": { "type": "string", "default": "" },
+        "identified_at": { "type": "string", "format": "date-time" },
+        "article_refs": { "type": "array", "items": { "type": "string" }, "default": [] },
+        "nist_rmf_ref": { "type": "string", "default": "" },
+        "iso42001_ref": { "type": "string", "default": "" },
+        "regulatory_status": { "type": "string", "enum": ["settled", "pending_implementing_act"] },
+        "knowledge_gap": { "type": "boolean", "default": false },
+        "knowledge_gap_reason": { "type": "string", "default": "" },
+        "source_ref": { "type": "string", "default": "" },
+        "tags": { "type": "array", "items": { "type": "string" }, "default": [] },
+        "nist_rmf_refs": { "type": "array", "items": { "type": "string" }, "default": [] },
+        "iso42001_refs": { "type": "array", "items": { "type": "string" }, "default": [] },
+        "notes": { "type": "string", "default": "" },
+        "residual_risk_band": { "type": "string", "enum": ["low", "medium", "high", "critical"] }
+      },
+      "additionalProperties": false
+    },
+    "Mitigation": {
+      "type": "object",
+      "required": ["id", "description", "control_type", "owner", "status"],
+      "properties": {
+        "id": { "type": "string", "format": "uuid" },
+        "description": { "type": "string", "minLength": 1 },
+        "control_type": { "type": "string", "enum": ["preventive", "detective", "corrective"] },
+        "owner": { "type": "string" },
+        "status": { "type": "string", "enum": ["planned", "implemented", "verified"] },
+        "evidence_refs": { "type": "array", "items": { "type": "string" }, "default": [] },
+        "is_vague": { "type": "boolean", "default": false }
+      },
+      "additionalProperties": false
+    },
+    "TestRequirement": {
+      "type": "object",
+      "required": ["id", "risk_item_id", "description", "metric_type", "threshold_range", "article_ref"],
+      "properties": {
+        "id": { "type": "string", "format": "uuid" },
+        "risk_item_id": { "type": "string", "format": "uuid" },
+        "description": { "type": "string" },
+        "metric_type": { "type": "string" },
+        "threshold_range": { "type": "string" },
+        "article_ref": { "type": "string" }
+      },
+      "additionalProperties": false
+    },
+    "CrossReference": {
+      "type": "object",
+      "required": ["article_ref", "risk_item_ids", "nist_rmf_ref", "iso42001_ref"],
+      "properties": {
+        "article_ref": { "type": "string" },
+        "risk_item_ids": { "type": "array", "items": { "type": "string", "format": "uuid" } },
+        "nist_rmf_ref": { "type": "string" },
+        "iso42001_ref": { "type": "string" }
+      },
+      "additionalProperties": false
+    }
+  }
+}

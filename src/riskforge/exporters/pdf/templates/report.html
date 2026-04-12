@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Risk Management File — {{ system.name }} v{{ system.version }}</title>
+  <link rel="stylesheet" href="report.css">
+</head>
+<body>
+
+  <!-- Cover Page -->
+  <section class="cover-page">
+    <div class="cover-logo">AiExponent LLC</div>
+    <h1 class="cover-title">EU AI Act Article 9<br>Risk Management File</h1>
+    <div class="cover-system">
+      <p class="system-name">{{ system.name }}</p>
+      <p class="system-version">Version {{ system.version }}</p>
+    </div>
+    <div class="cover-meta">
+      <table>
+        <tr><td>Provider</td><td>{{ system.provider_name }}</td></tr>
+        <tr><td>Assessor</td><td>{{ register.assessor_name }}, {{ register.assessor_role }}</td></tr>
+        <tr><td>Assessment Date</td><td>{{ register.assessment_date.strftime('%d %B %Y') }}</td></tr>
+        <tr><td>Review Date</td><td>{{ register.review_date.strftime('%d %B %Y') }}</td></tr>
+        <tr><td>RMF Schema</td><td>v{{ rmf.rmf_schema_version }}</td></tr>
+        <tr><td>Generated</td><td>{{ rmf.generated_at.strftime('%d %B %Y %H:%M UTC') }}</td></tr>
+      </table>
+    </div>
+    <div class="cover-hash">
+      <p>SHA-256: <code>{{ rmf.sha256_hash }}</code></p>
+    </div>
+  </section>
+
+  <div class="page-break"></div>
+
+  <!-- Executive Summary -->
+  <section class="section">
+    <h2>1. Executive Summary</h2>
+    <p><strong>Purpose:</strong> {{ system.purpose }}</p>
+    <p><strong>Annex III Category:</strong>
+      {% if system.annex_iii_category %}
+        {{ system.annex_iii_category.value.replace('_', ' ').title() }}
+      {% else %}
+        Not classified
+      {% endif %}
+    </p>
+    <p><strong>Self-Classification Documented:</strong>
+      {{ 'Yes' if system.annex_iii_self_classification_documented else 'No — see Gate G2' }}
+    </p>
+    <p><strong>Total Risk Items:</strong> {{ register.items | length }}</p>
+    <p><strong>Open Items (above appetite threshold of {{ register.risk_appetite_threshold }}):</strong>
+      {{ register.open_items() | length }}
+    </p>
+    <p><strong>Knowledge Gaps:</strong> {{ register.knowledge_gaps() | length }}</p>
+  </section>
+
+  <!-- System Description -->
+  <section class="section">
+    <h2>2. System Description</h2>
+    <table class="metadata-table">
+      <tr><th>Field</th><th>Value</th></tr>
+      <tr><td>System ID</td><td><code>{{ system.id }}</code></td></tr>
+      <tr><td>Name</td><td>{{ system.name }}</td></tr>
+      <tr><td>Version</td><td>{{ system.version }}</td></tr>
+      <tr><td>Provider</td><td>{{ system.provider_name }}</td></tr>
+      <tr><td>Provider Contact</td><td>{{ system.provider_contact or 'Not specified' }}</td></tr>
+      <tr><td>Intended Users</td><td>{{ system.intended_users | join(', ') or 'Not specified' }}</td></tr>
+      <tr><td>Inputs</td><td>{{ system.inputs | join(', ') or 'Not specified' }}</td></tr>
+      <tr><td>Outputs</td><td>{{ system.outputs | join(', ') or 'Not specified' }}</td></tr>
+      <tr><td>Deployment Context</td><td>{{ system.deployment_context or 'Not specified' }}</td></tr>
+    </table>
+  </section>
+
+  <!-- Risk Register -->
+  <section class="section">
+    <h2>3. Risk Register</h2>
+    <p>Risk appetite threshold: {{ register.risk_appetite_threshold }} (scores above this require mitigation or acceptance).</p>
+
+    {% set dimensions = ['health_safety', 'fundamental_rights', 'discrimination', 'privacy', 'transparency', 'human_oversight', 'robustness', 'data_governance'] %}
+    {% for dim in dimensions %}
+      {% set dim_items = register.items | selectattr('dimension.value', 'equalto', dim) | list %}
+      <h3>3.{{ loop.index }} {{ dim.replace('_', ' ').title() }}</h3>
+      {% if dim_items %}
+        {% for item in dim_items %}
+          <div class="risk-item risk-band-{{ item.risk_band }}">
+            <div class="risk-header">
+              <span class="risk-title">{{ item.title }}</span>
+              <span class="risk-score-badge band-{{ item.risk_band }}">
+                {{ item.risk_band.upper() }} ({{ item.risk_score }})
+              </span>
+            </div>
+            <p class="risk-description">{{ item.description }}</p>
+            <table class="risk-detail-table">
+              <tr>
+                <td>Likelihood</td><td>{{ item.likelihood.name }} ({{ item.likelihood }})</td>
+                <td>Severity</td><td>{{ item.severity.name }} ({{ item.severity }})</td>
+              </tr>
+              <tr>
+                <td>Residual Likelihood</td><td>{{ item.residual_likelihood.name }}</td>
+                <td>Residual Severity</td><td>{{ item.residual_severity.name }}</td>
+              </tr>
+              <tr>
+                <td>Source</td><td>{{ item.source }}</td>
+                <td>Regulatory Status</td><td>{{ item.regulatory_status }}</td>
+              </tr>
+            </table>
+            {% if item.article_refs %}
+              <p class="article-refs"><strong>Article refs:</strong> {{ item.article_refs | join(', ') }}</p>
+            {% endif %}
+            {% if item.nist_rmf_ref %}
+              <p class="cross-refs">NIST AI RMF: {{ item.nist_rmf_ref }}
+                {% if item.iso42001_ref %} | ISO/IEC 42001: {{ item.iso42001_ref }}{% endif %}
+              </p>
+            {% endif %}
+            {% if item.mitigations %}
+              <div class="mitigations">
+                <strong>Mitigations:</strong>
+                <ul>
+                  {% for m in item.mitigations %}
+                    <li class="{{ 'vague-mitigation' if m.is_vague else '' }}">
+                      <strong>{{ m.control_type.title() }}</strong> [{{ m.status }}] —
+                      {{ m.description }}
+                      {% if m.is_vague %}<span class="vague-flag">(flagged: generic language)</span>{% endif %}
+                    </li>
+                  {% endfor %}
+                </ul>
+              </div>
+            {% endif %}
+            {% if item.accepted %}
+              <div class="acceptance-notice">
+                <strong>Accepted:</strong> {{ item.acceptance_rationale }}
+              </div>
+            {% endif %}
+            {% if item.knowledge_gap %}
+              <div class="knowledge-gap-notice">
+                Knowledge gap — test requirements derived. See Section 5.
+              </div>
+            {% endif %}
+          </div>
+        {% endfor %}
+      {% else %}
+        <p class="no-items">No risk items recorded for this dimension.</p>
+      {% endif %}
+    {% endfor %}
+  </section>
+
+  <!-- Test Requirements -->
+  <section class="section">
+    <h2>4. Article 9(7) Test Requirements</h2>
+    {% if rmf.test_requirements %}
+      <table class="test-table">
+        <thead>
+          <tr><th>Risk Item</th><th>Metric</th><th>Threshold</th><th>Article</th></tr>
+        </thead>
+        <tbody>
+          {% for t in rmf.test_requirements %}
+            <tr>
+              <td><code>{{ t.risk_item_id | string | truncate(8, True, '') }}</code></td>
+              <td>{{ t.metric_type }}</td>
+              <td><code>{{ t.threshold_range }}</code></td>
+              <td>{{ t.article_ref }}</td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    {% else %}
+      <p>No test requirements derived. Run <code>riskforge tests generate</code> to derive requirements from risk items.</p>
+    {% endif %}
+  </section>
+
+  <!-- Audit Trail -->
+  <section class="section">
+    <h2>5. Audit Trail</h2>
+    <p>This document includes a SHA-256 hash-chained audit trail stored in
+    <code>.riskforge/audit.jsonl</code>. The export hash links this document
+    to a specific audit log entry.</p>
+    <table class="metadata-table">
+      <tr><td>Export Audit Entry Hash</td><td><code>{{ rmf.audit_entry_hash or 'Not recorded' }}</code></td></tr>
+      <tr><td>Document SHA-256</td><td><code>{{ rmf.sha256_hash }}</code></td></tr>
+      <tr><td>Signed By</td><td>{{ rmf.signed_by or 'Unsigned' }}</td></tr>
+    </table>
+    <p>Verify integrity at any time: <code>riskforge verify</code></p>
+  </section>
+
+  <!-- Disclosure -->
+  <section class="section disclosure">
+    <h2>6. Disclosure</h2>
+    <p>{{ rmf.disclosure }}</p>
+  </section>
+
+</body>
+</html>

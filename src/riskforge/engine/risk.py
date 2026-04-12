@@ -1,0 +1,111 @@
+"""RiskEngine — CRUD and scoring for risk items."""
+from __future__ import annotations
+
+import hashlib
+
+from riskforge.engine.audit import AuditEngine
+from riskforge.models.risk import Mitigation, RiskDimension, RiskItem
+from riskforge.storage.base import StorageBackend
+
+VAGUE_PHRASES = {
+    "we'll monitor it",
+    "to be determined",
+    "tbd",
+    "n/a",
+    "will address later",
+    "monitor",
+    "ongoing",
+    "review",
+}
+
+
+class RiskNotFoundError(KeyError):
+    pass
+
+
+class RiskEngine:
+    """CRUD and scoring for risk items. All writes emit audit entries."""
+
+    def __init__(self, storage: StorageBackend, audit: AuditEngine) -> None:
+        self._storage = storage
+        self._audit = audit
+
+    async def add_risk(self, system_id: str, item: RiskItem) -> RiskItem:
+        item.mitigations = [self._flag_vague(m) for m in item.mitigations]
+        register = await self._storage.read_register(system_id)
+        register.items.append(item)
+        await self._storage.write_register(system_id, register)
+        await self._audit.record(
+            "risk_item.created",
+            system_id,
+            {
+                "risk_item_id": str(item.id),
+                "dimension": item.dimension,
+                "score": item.risk_score,
+            },
+        )
+        return item
+
+    async def update_risk(self, system_id: str, item: RiskItem) -> RiskItem:
+        item.mitigations = [self._flag_vague(m) for m in item.mitigations]
+        register = await self._storage.read_register(system_id)
+        idx = next((i for i, r in enumerate(register.items) if r.id == item.id), None)
+        if idx is None:
+            raise RiskNotFoundError(str(item.id))
+        old_score = register.items[idx].risk_score
+        register.items[idx] = item
+        await self._storage.write_register(system_id, register)
+        await self._audit.record(
+            "risk_item.updated",
+            system_id,
+            {
+                "risk_item_id": str(item.id),
+                "old_score": old_score,
+                "new_score": item.risk_score,
+            },
+        )
+        return item
+
+    async def accept_risk(
+        self, system_id: str, risk_id: str, rationale: str, actor_identity: str
+    ) -> RiskItem:
+        if not rationale.strip():
+            raise ValueError("Acceptance rationale is required and cannot be empty.")
+        register = await self._storage.read_register(system_id)
+        item = next((i for i in register.items if str(i.id) == risk_id), None)
+        if item is None:
+            raise RiskNotFoundError(risk_id)
+        old_accepted = item.accepted
+        item.accepted = True
+        item.acceptance_rationale = rationale
+        await self._storage.write_register(system_id, register)
+        await self._audit.record(
+            "risk.accepted",
+            system_id,
+            {
+                "risk_item_id": risk_id,
+                "old_accepted": old_accepted,
+                "rationale_hash": self._hash_rationale(rationale),
+                "actor": actor_identity,
+            },
+        )
+        return item
+
+    async def list_risks(
+        self, system_id: str, dimension: RiskDimension | None = None
+    ) -> list[RiskItem]:
+        register = await self._storage.read_register(system_id)
+        if dimension is not None:
+            return [i for i in register.items if i.dimension == dimension]
+        return register.items
+
+    @staticmethod
+    def _flag_vague(mitigation: Mitigation) -> Mitigation:
+        mitigation.is_vague = any(
+            phrase in mitigation.description.lower() for phrase in VAGUE_PHRASES
+        )
+        return mitigation
+
+    @staticmethod
+    def _hash_rationale(rationale: str) -> str:
+        return hashlib.sha256(rationale.encode()).hexdigest()[:16]

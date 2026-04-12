@@ -1,0 +1,38 @@
+# RiskForge Team Deployment — Docker Compose
+# Tier 2: multi-user team access via FileStore or SQLiteStore
+#
+# Usage:
+#   docker compose up                  # start API server
+#   docker compose exec api riskforge --help
+#
+# Required environment variables (set in .env or export before running):
+#   RISKFORGE_SECRET_KEY — generate with: python -c "import secrets; print(secrets.token_hex(32))"
+
+version: "3.9"
+
+services:
+  api:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
+    image: aiexponent/riskforge:latest
+    container_name: riskforge-api
+    ports:
+      - "8090:8090"
+    volumes:
+      - riskforge-data:/data
+    environment:
+      RISKFORGE_SECRET_KEY: "${RISKFORGE_SECRET_KEY:?RISKFORGE_SECRET_KEY is required}"
+      RISKFORGE_PROJECT_DIR: "/data"
+      RISKFORGE_STORAGE_BACKEND: "filesystem"
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8090/health')"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+
+volumes:
+  riskforge-data:
+    driver: local

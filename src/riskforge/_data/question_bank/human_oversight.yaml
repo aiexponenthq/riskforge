@@ -1,0 +1,46 @@
+schema_version: "1.0.0"
+dimension: human_oversight
+questions:
+  - id: HO-001
+    text: "Can a human operator override or stop the AI system's output in real time without significant technical barriers?"
+    guidance: "Article 14(4)(e) requires the ability to intervene on or interrupt AI system operation. This must be technically implemented, not just policy-stated."
+    annex_iii_categories: [critical_infrastructure, law_enforcement, biometric]
+    default_likelihood_hint: null
+    default_severity_hint: null
+    article_refs: ["Art.14(4)(e)"]
+    nist_rmf_ref: "MANAGE 1.1"
+    iso42001_ref: "Clause A.9"
+    regulatory_status: settled
+
+  - id: HO-002
+    text: "Are human reviewers trained on the system's capabilities, limitations, and known biases before making decisions based on its output?"
+    guidance: "Untrained human reviewers provide illusory oversight. Article 14(3) requires deployers to assign oversight to qualified persons."
+    annex_iii_categories: [employment, law_enforcement, essential_services, education]
+    default_likelihood_hint: 3
+    default_severity_hint: 3
+    article_refs: ["Art.14(3)"]
+    nist_rmf_ref: "MANAGE 1.1"
+    iso42001_ref: "Clause A.9"
+    regulatory_status: settled
+
+  - id: HO-003
+    text: "Is the human oversight load (volume of cases reviewed per reviewer per day) realistic for meaningful review, not rubber-stamping?"
+    guidance: "Automation bias and review fatigue cause human oversight to become nominal. Workload design is a technical control."
+    annex_iii_categories: [employment, law_enforcement, essential_services]
+    default_likelihood_hint: 3
+    default_severity_hint: 4
+    article_refs: ["Art.14"]
+    nist_rmf_ref: "MANAGE 1.1"
+    iso42001_ref: "Clause A.9"
+    regulatory_status: settled
+
+  - id: HO-004
+    text: "Is the system designed to make its reasoning interpretable to human reviewers (e.g. via explainability methods, confidence scores, supporting evidence)?"
+    guidance: "Human oversight is only meaningful if the reviewer can understand what the system decided and why."
+    annex_iii_categories: [law_enforcement, employment, essential_services, education]
+    default_likelihood_hint: 2
+    default_severity_hint: 4
+    article_refs: ["Art.14(4)(c)"]
+    nist_rmf_ref: "MEASURE 1.1"
+    iso42001_ref: "Clause A.6"
+    regulatory_status: settled
