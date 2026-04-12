@@ -45,9 +45,10 @@ class ExportEngine:
         )
 
         # 2. Compute SHA-256 over canonical JSON (sha256_hash field = "")
+        # by_alias=True ensures risk_register serialises as "register" per the schema
         rmf.sha256_hash = ""
         canonical = json.dumps(
-            rmf.model_dump(mode="json"), sort_keys=True, separators=(",", ":")
+            rmf.model_dump(mode="json", by_alias=True), sort_keys=True, separators=(",", ":")
         )
         rmf.sha256_hash = hashlib.sha256(canonical.encode("utf-8")).hexdigest()
 
@@ -90,7 +91,7 @@ class ExportEngine:
         )
         schema = json.loads(schema_text)
         try:
-            jsonschema.validate(rmf.model_dump(mode="json"), schema)
+            jsonschema.validate(rmf.model_dump(mode="json", by_alias=True), schema)
         except jsonschema.ValidationError as e:
             raise SchemaViolationError(f"RMF schema violation: {e.message}") from e
 
