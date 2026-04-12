@@ -1,4 +1,5 @@
 """Webhook router — incoming events from upstream tools."""
+
 from __future__ import annotations
 
 from fastapi import APIRouter, Depends

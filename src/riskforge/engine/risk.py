@@ -1,4 +1,5 @@
 """RiskEngine — CRUD and scoring for risk items."""
+
 from __future__ import annotations
 
 import hashlib

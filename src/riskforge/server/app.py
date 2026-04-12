@@ -1,4 +1,5 @@
 """FastAPI server application factory."""
+
 from __future__ import annotations
 
 from contextlib import asynccontextmanager
@@ -20,7 +21,7 @@ async def lifespan(app: FastAPI):
     if not config.secret_key:
         raise RuntimeError(
             "RISKFORGE_SECRET_KEY is required. "
-            "Generate with: python -c \"import secrets; print(secrets.token_hex(32))\""
+            'Generate with: python -c "import secrets; print(secrets.token_hex(32))"'
         )
     yield
     # Shutdown: flush any pending writes

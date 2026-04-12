@@ -1,4 +1,5 @@
 """RAGBenchmarkingAdapter — imports accuracy evidence from rag-benchmarking reports."""
+
 from __future__ import annotations
 
 from packaging.version import Version

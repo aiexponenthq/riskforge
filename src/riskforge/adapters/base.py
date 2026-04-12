@@ -1,4 +1,5 @@
 """IntegrationAdapter protocol — base contract for upstream tool adapters."""
+
 from __future__ import annotations
 
 from typing import Protocol, runtime_checkable

@@ -8,6 +8,7 @@ This test suite is parametrised over all engine submodules and enforces
 the boundary by introspecting the loaded module's global namespace and
 source file references. Violations are caught in CI before merge.
 """
+
 from __future__ import annotations
 
 import importlib
@@ -23,10 +24,7 @@ def _submodules(package: str) -> list[str]:
         mod = importlib.import_module(package)
     except ImportError:
         return []
-    return [
-        m.name
-        for m in pkgutil.walk_packages(mod.__path__, f"{package}.")
-    ]
+    return [m.name for m in pkgutil.walk_packages(mod.__path__, f"{package}.")]
 
 
 ENGINE_MODULES = _submodules("riskforge.engine")

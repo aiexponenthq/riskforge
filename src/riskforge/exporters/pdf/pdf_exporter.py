@@ -1,4 +1,5 @@
 """PDF exporter — renders RMF to PDF via WeasyPrint and Jinja2."""
+
 from __future__ import annotations
 
 from pathlib import Path

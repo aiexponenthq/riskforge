@@ -7,6 +7,7 @@ objects capture the real stdout at import time, bypassing CliRunner's patch).
 The assess command requires interactive terminal prompts so it is not tested
 here. AssessEngine is covered in unit/test_audit_chain.py.
 """
+
 from __future__ import annotations
 
 import json
@@ -45,18 +46,30 @@ def _run(args: list[str], cwd: str | None = None) -> subprocess.CompletedProcess
 
 def _init_project(tmp_dir: Path, name: str = "Pipeline Test System") -> str:
     """Run riskforge init and return the system_id."""
-    result = _run([
-        "init",
-        "--name", name,
-        "--sys-version", "2.0",
-        "--purpose", f"Integration test for {name}.",
-        "--provider", "AiExponent LLC",
-        "--category", "employment",
-        "--project-dir", str(tmp_dir),
-    ])
+    result = _run(
+        [
+            "init",
+            "--name",
+            name,
+            "--sys-version",
+            "2.0",
+            "--purpose",
+            f"Integration test for {name}.",
+            "--provider",
+            "AiExponent LLC",
+            "--category",
+            "employment",
+            "--project-dir",
+            str(tmp_dir),
+        ]
+    )
     assert result.returncode == 0, f"init failed:\nSTDOUT:{result.stdout}\nSTDERR:{result.stderr}"
     sid = next(
-        (line.split(":", 1)[-1].strip() for line in result.output.splitlines() if "System ID:" in line),
+        (
+            line.split(":", 1)[-1].strip()
+            for line in result.output.splitlines()
+            if "System ID:" in line
+        ),
         None,
     )
     assert sid, f"Could not extract system ID from:\n{result.output}"
@@ -141,22 +154,33 @@ def test_full_pipeline_init_validate_export_verify() -> None:
         _seed_register(d, sid)
 
         # 3. Validate
-        validate_result = _run([
-            "validate", sid, "--project-dir", str(d),
-        ])
+        validate_result = _run(
+            [
+                "validate",
+                sid,
+                "--project-dir",
+                str(d),
+            ]
+        )
         assert validate_result.returncode in (0, 1), (
             f"validate exited {validate_result.returncode}:\n{validate_result.stdout}"
         )
 
         # 4. Export JSON
         output_json = d / "test_rmf.json"
-        export_result = _run([
-            "export", sid,
-            "--format", "json",
-            "--output", str(output_json),
-            "--force",
-            "--project-dir", str(d),
-        ])
+        export_result = _run(
+            [
+                "export",
+                sid,
+                "--format",
+                "json",
+                "--output",
+                str(output_json),
+                "--force",
+                "--project-dir",
+                str(d),
+            ]
+        )
         assert export_result.returncode == 0, (
             f"export json failed:\n{export_result.stdout}\n{export_result.stderr}"
         )
@@ -169,9 +193,13 @@ def test_full_pipeline_init_validate_export_verify() -> None:
         assert rmf["sha256_hash"] != ""
 
         # 5. Verify audit chain
-        verify_result = _run([
-            "verify", "--project-dir", str(d),
-        ])
+        verify_result = _run(
+            [
+                "verify",
+                "--project-dir",
+                str(d),
+            ]
+        )
         assert verify_result.returncode == 0, (
             f"verify failed (chain corrupt):\n{verify_result.stdout}"
         )
@@ -187,13 +215,19 @@ def test_export_markdown_contains_risk_items() -> None:
         _seed_register(d, sid, one_dim=True)
 
         out = d / "test.md"
-        result = _run([
-            "export", sid,
-            "--format", "markdown",
-            "--output", str(out),
-            "--force",
-            "--project-dir", str(d),
-        ])
+        result = _run(
+            [
+                "export",
+                sid,
+                "--format",
+                "markdown",
+                "--output",
+                str(out),
+                "--force",
+                "--project-dir",
+                str(d),
+            ]
+        )
         assert result.returncode == 0, f"markdown export failed:\n{result.stderr}"
         assert out.exists()
         content = out.read_text()

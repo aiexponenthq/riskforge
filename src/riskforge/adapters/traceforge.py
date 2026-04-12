@@ -1,4 +1,5 @@
 """TraceForgeAdapter — imports data governance evidence from TraceForge reports."""
+
 from __future__ import annotations
 
 from packaging.version import Version

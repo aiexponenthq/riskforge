@@ -7,6 +7,7 @@ All migrations expose:
 This is the baseline migration. Data at schema_version 1.0.0 passes through
 unchanged. Future migrations (m0002, m0003, ...) transform data incrementally.
 """
+
 from __future__ import annotations
 
 

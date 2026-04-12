@@ -1,4 +1,5 @@
 """Plugin loader — convenience wrapper for loading question banks from data files."""
+
 from __future__ import annotations
 
 from pathlib import Path
@@ -9,7 +10,9 @@ import yaml
 from riskforge.models.risk import RiskDimension
 
 
-def load_question_bank(dimension: RiskDimension, data_dir: Path | None = None) -> list[dict[str, Any]]:
+def load_question_bank(
+    dimension: RiskDimension, data_dir: Path | None = None
+) -> list[dict[str, Any]]:
     """Load the YAML question bank for a given dimension.
 
     Uses importlib.resources to locate bundled data when data_dir is None.
@@ -20,11 +23,7 @@ def load_question_bank(dimension: RiskDimension, data_dir: Path | None = None) -
     else:
         from importlib.resources import files
 
-        raw = (
-            files("riskforge._data.question_bank")
-            .joinpath(f"{dimension.value}.yaml")
-            .read_text()
-        )
+        raw = files("riskforge._data.question_bank").joinpath(f"{dimension.value}.yaml").read_text()
     data = yaml.safe_load(raw)
     return data.get("questions", [])
 
@@ -37,10 +36,6 @@ def load_patterns(data_dir: Path | None = None) -> list[dict[str, Any]]:
     else:
         from importlib.resources import files
 
-        raw = (
-            files("riskforge._data.patterns")
-            .joinpath("patterns.yaml")
-            .read_text()
-        )
+        raw = files("riskforge._data.patterns").joinpath("patterns.yaml").read_text()
     data = yaml.safe_load(raw)
     return data.get("patterns", [])

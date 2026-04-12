@@ -1,4 +1,5 @@
 """Prometheus metrics setup."""
+
 from __future__ import annotations
 
 from fastapi import FastAPI

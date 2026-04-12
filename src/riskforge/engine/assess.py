@@ -1,4 +1,5 @@
 """AssessEngine — interactive question runner and pattern matcher."""
+
 from __future__ import annotations
 
 from pathlib import Path
@@ -30,10 +31,7 @@ class AssessEngine:
 
     def load_all_questions(self) -> dict[str, list[dict[str, Any]]]:
         """Load all 8 dimension question banks."""
-        return {
-            dim.value: self.load_questions(dim)
-            for dim in RiskDimension
-        }
+        return {dim.value: self.load_questions(dim) for dim in RiskDimension}
 
     def load_patterns(self) -> list[dict[str, Any]]:
         """Load risk patterns from the pattern library."""

@@ -1,4 +1,5 @@
 """AuditEngine — append-only, hash-chained audit log management."""
+
 from __future__ import annotations
 
 import hashlib

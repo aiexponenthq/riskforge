@@ -1,4 +1,5 @@
 """PluginRegistry — discovers and caches all entry_point-registered plugins."""
+
 from __future__ import annotations
 
 import importlib.metadata
@@ -40,8 +41,7 @@ class PluginRegistry:
         cls = self._exporters.get(name)
         if cls is None:
             raise PluginNotFoundError(
-                f"No exporter registered for format '{name}'. "
-                f"Available: {list(self._exporters)}"
+                f"No exporter registered for format '{name}'. Available: {list(self._exporters)}"
             )
         return cls()
 
@@ -49,8 +49,7 @@ class PluginRegistry:
         cls = self._adapters.get(name)
         if cls is None:
             raise PluginNotFoundError(
-                f"No adapter registered for source '{name}'. "
-                f"Available: {list(self._adapters)}"
+                f"No adapter registered for source '{name}'. Available: {list(self._adapters)}"
             )
         return cls()
 

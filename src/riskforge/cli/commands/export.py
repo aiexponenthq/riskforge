@@ -1,4 +1,5 @@
 """riskforge export — export the risk management file."""
+
 from __future__ import annotations
 
 import asyncio
@@ -49,6 +50,7 @@ def cmd(
 
     # Build the RMF artefact
     import datetime
+
     rmf = RiskManagementFile(
         register=register,
         generated_at=datetime.datetime.now(datetime.UTC),

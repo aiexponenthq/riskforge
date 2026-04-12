@@ -1,4 +1,5 @@
 """riskforge diff — compare two risk register snapshots."""
+
 from __future__ import annotations
 
 from pathlib import Path

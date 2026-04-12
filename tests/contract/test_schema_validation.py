@@ -1,4 +1,5 @@
 """Contract tests — every export path must validate against rmf.schema.json."""
+
 from __future__ import annotations
 
 import datetime
@@ -16,8 +17,7 @@ from riskforge.models.system import AISystem, AnnexIIICategory
 @pytest.fixture
 def schema() -> dict:
     schema_path = (
-        Path(__file__).parent.parent.parent
-        / "src/riskforge/_data/schemas/rmf.schema.json"
+        Path(__file__).parent.parent.parent / "src/riskforge/_data/schemas/rmf.schema.json"
     )
     return json.loads(schema_path.read_text())
 

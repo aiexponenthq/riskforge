@@ -1,4 +1,5 @@
 """riskforge serve — start the optional FastAPI server."""
+
 from __future__ import annotations
 
 from pathlib import Path

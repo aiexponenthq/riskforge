@@ -1,4 +1,5 @@
 """RiskItem, Mitigation, Likelihood, Severity, RiskDimension models."""
+
 from __future__ import annotations
 
 from datetime import UTC, datetime
@@ -8,11 +9,23 @@ from uuid import UUID, uuid4
 
 from pydantic import BaseModel, Field, computed_field, field_validator
 
-VAGUE_PHRASES = frozenset({
-    "we'll monitor it", "will monitor", "to be determined", "tbd", "n/a",
-    "will address later", "monitor", "ongoing", "review", "future work",
-    "to be confirmed", "tbc", "see comments",
-})
+VAGUE_PHRASES = frozenset(
+    {
+        "we'll monitor it",
+        "will monitor",
+        "to be determined",
+        "tbd",
+        "n/a",
+        "will address later",
+        "monitor",
+        "ongoing",
+        "review",
+        "future work",
+        "to be confirmed",
+        "tbc",
+        "see comments",
+    }
+)
 
 
 class Likelihood(IntEnum):
@@ -78,7 +91,9 @@ class RiskItem(BaseModel):
     dimension: RiskDimension
     title: str
     description: str
-    source: Literal["manual", "question_bank", "pattern", "traceforge", "rag_benchmarking"] = "manual"
+    source: Literal["manual", "question_bank", "pattern", "traceforge", "rag_benchmarking"] = (
+        "manual"
+    )
     likelihood: Likelihood
     severity: Severity
     mitigations: list[Mitigation] = Field(default_factory=list)

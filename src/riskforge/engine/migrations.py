@@ -1,4 +1,5 @@
 """MigrationRunner — schema version upgrades for .riskforge/ project state."""
+
 from __future__ import annotations
 
 import importlib

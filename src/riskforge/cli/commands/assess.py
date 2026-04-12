@@ -1,4 +1,5 @@
 """riskforge assess — interactive 8-dimension Article 9 risk assessment."""
+
 import asyncio
 from datetime import UTC, datetime, timedelta
 from pathlib import Path
@@ -190,9 +191,7 @@ async def _run_assess(
                     )
                     await risk_engine.add_risk(system_id, item)
                     pattern_count += 1
-            console.print(
-                f"[green]✓[/green] Added {pattern_count} pattern-derived risk item(s).\n"
-            )
+            console.print(f"[green]✓[/green] Added {pattern_count} pattern-derived risk item(s).\n")
 
     # ── Dimension question loop ────────────────────────────────────────────────
     if dimension_filter:
@@ -201,8 +200,7 @@ async def _run_assess(
         except ValueError:
             valid = [d.value for d in RiskDimension]
             console.print(
-                f"[red]✗[/red] Unknown dimension '{dimension_filter}'. "
-                f"Valid: {', '.join(valid)}"
+                f"[red]✗[/red] Unknown dimension '{dimension_filter}'. Valid: {', '.join(valid)}"
             )
             raise typer.Exit(1)
     else:
@@ -210,14 +208,14 @@ async def _run_assess(
 
     # Pre-load all questions to know the total for progress display
     all_pairs: list[tuple[RiskDimension, dict]] = [
-        (dim, q)
-        for dim in dims_to_run
-        for q in assess.load_questions(dim)
+        (dim, q) for dim in dims_to_run for q in assess.load_questions(dim)
     ]
     total_q = len(all_pairs)
 
     if total_q == 0:
-        console.print("[yellow]No questions found in question bank for the selected dimension(s).[/yellow]")
+        console.print(
+            "[yellow]No questions found in question bank for the selected dimension(s).[/yellow]"
+        )
         raise typer.Exit(0)
 
     risks_added = 0
@@ -251,9 +249,7 @@ async def _run_assess(
             if question.get("guidance"):
                 console.print(f"  [dim italic]{question['guidance']}[/dim italic]")
             if question.get("article_refs"):
-                console.print(
-                    f"  [dim]Refs: {', '.join(question['article_refs'])}[/dim]"
-                )
+                console.print(f"  [dim]Refs: {', '.join(question['article_refs'])}[/dim]")
 
             # ── Answer prompt ───────────────────────────────────────────────
             answer = questionary.select(
@@ -310,15 +306,16 @@ async def _run_assess(
 
                 score = likelihood * severity
                 band = (
-                    "low" if score <= 4
-                    else "medium" if score <= 9
-                    else "high" if score <= 16
+                    "low"
+                    if score <= 4
+                    else "medium"
+                    if score <= 9
+                    else "high"
+                    if score <= 16
                     else "critical"
                 )
                 col = _BAND_COLOUR[band]
-                console.print(
-                    f"  [dim]Score: {score} → [{col}]{band.upper()}[/{col}][/dim]"
-                )
+                console.print(f"  [dim]Score: {score} → [{col}]{band.upper()}[/{col}][/dim]")
                 risks_added += 1
 
             # ── Create and persist risk item ────────────────────────────────

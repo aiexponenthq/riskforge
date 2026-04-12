@@ -1,4 +1,5 @@
 """riskforge import — import upstream tool reports into the risk register."""
+
 from __future__ import annotations
 
 import asyncio
@@ -12,7 +13,9 @@ console = Console()
 
 def cmd(
     system_id: str = typer.Argument(..., help="System ID"),
-    adapter: str = typer.Option(..., "--adapter", "-a", help="Adapter name (e.g. rag-benchmarking)"),
+    adapter: str = typer.Option(
+        ..., "--adapter", "-a", help="Adapter name (e.g. rag-benchmarking)"
+    ),
     report: Path = typer.Option(..., "--report", "-r", help="Path to upstream report JSON"),
     project_dir: Path = typer.Option(Path("."), "--project-dir"),
 ) -> None:

@@ -1,4 +1,5 @@
 """ValidateEngine — 8 readiness gates before export."""
+
 from __future__ import annotations
 
 from dataclasses import dataclass, field
@@ -70,9 +71,7 @@ class ValidateEngine:
                 "Run `riskforge system edit` and set "
                 "annex_iii_self_classification_documented=true.",
             )
-        return GateResult(
-            "G2", "Article 6(2) self-classification documented", GateStatus.PASS
-        )
+        return GateResult("G2", "Article 6(2) self-classification documented", GateStatus.PASS)
 
     def _gate_high_risks_addressed(self, r: RiskRegister) -> GateResult:
         open_items = r.open_items()
@@ -84,9 +83,7 @@ class ValidateEngine:
                 f"{len(open_items)} risk(s) above threshold not accepted or mitigated: "
                 + ", ".join(str(i.id)[:8] for i in open_items),
             )
-        return GateResult(
-            "G3", "All high-scoring risks mitigated or accepted", GateStatus.PASS
-        )
+        return GateResult("G3", "All high-scoring risks mitigated or accepted", GateStatus.PASS)
 
     def _gate_knowledge_gaps_have_tests(self, r: RiskRegister) -> GateResult:
         gaps_without_tests = [i for i in r.knowledge_gaps() if not i.tags]

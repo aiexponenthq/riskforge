@@ -1,4 +1,5 @@
 """Markdown exporter — produces a human-readable RMF summary."""
+
 from __future__ import annotations
 
 from riskforge.exporters.base import Exporter
@@ -40,6 +41,7 @@ class MarkdownExporter(Exporter):
 
         # Group by dimension
         from riskforge.models.risk import RiskDimension
+
         for dim in RiskDimension:
             dim_items = [i for i in reg.items if i.dimension == dim]
             if not dim_items:

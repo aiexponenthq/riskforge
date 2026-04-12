@@ -1,4 +1,5 @@
 """Risk item CRUD router."""
+
 from __future__ import annotations
 
 from fastapi import APIRouter, Depends

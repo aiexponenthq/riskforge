@@ -1,4 +1,5 @@
 """ExportEngine — dispatches to Exporter plugins; hashes and signs the output."""
+
 from __future__ import annotations
 
 import hashlib
@@ -86,9 +87,7 @@ class ExportEngine:
 
         import jsonschema
 
-        schema_text = (
-            files("riskforge._data.schemas").joinpath("rmf.schema.json").read_text()
-        )
+        schema_text = files("riskforge._data.schemas").joinpath("rmf.schema.json").read_text()
         schema = json.loads(schema_text)
         try:
             jsonschema.validate(rmf.model_dump(mode="json", by_alias=True), schema)

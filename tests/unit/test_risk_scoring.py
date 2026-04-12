@@ -1,4 +1,5 @@
 """Unit tests for risk scoring and computed fields."""
+
 from __future__ import annotations
 
 import pytest
@@ -41,9 +42,9 @@ def test_risk_score_and_band(
 
 def test_risk_score_boundary_medium_low() -> None:
     """Score of 4 is low; score of 5 is medium."""
-    assert make_item(2, 2).risk_band == "low"    # 2*2=4 → low
-    assert make_item(1, 5).risk_band == "medium" # 1*5=5 → medium
-    assert make_item(1, 4).risk_band == "low"    # 1*4=4 → low
+    assert make_item(2, 2).risk_band == "low"  # 2*2=4 → low
+    assert make_item(1, 5).risk_band == "medium"  # 1*5=5 → medium
+    assert make_item(1, 4).risk_band == "low"  # 1*4=4 → low
 
 
 def test_residual_risk_score() -> None:
@@ -52,10 +53,10 @@ def test_residual_risk_score() -> None:
         title="Privacy risk",
         description="Test",
         source="manual",
-        likelihood=Likelihood.likely,        # 4
-        severity=Severity.major,             # 4
+        likelihood=Likelihood.likely,  # 4
+        severity=Severity.major,  # 4
         residual_likelihood=Likelihood.unlikely,  # 2
-        residual_severity=Severity.minor,         # 2
+        residual_severity=Severity.minor,  # 2
     )
     assert item.risk_score == 16
     assert item.residual_risk_score == 4

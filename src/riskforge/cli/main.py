@@ -1,4 +1,5 @@
 """RiskForge CLI entry point."""
+
 from __future__ import annotations
 
 import typer
@@ -10,8 +11,7 @@ def _version_callback(value: bool) -> None:
         from importlib.metadata import version as pkg_version
 
         typer.echo(
-            f"RiskForge v{pkg_version('riskforge')} | "
-            "Apache 2.0 | Zero telemetry | aiexponent.com"
+            f"RiskForge v{pkg_version('riskforge')} | Apache 2.0 | Zero telemetry | aiexponent.com"
         )
         raise typer.Exit()
 

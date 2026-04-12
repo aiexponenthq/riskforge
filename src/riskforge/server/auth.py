@@ -1,4 +1,5 @@
 """Bearer token authentication for the RiskForge API."""
+
 from __future__ import annotations
 
 import hashlib
@@ -18,9 +19,7 @@ def verify_token(
 
     config = ServerConfig()
     token = credentials.credentials
-    expected = hashlib.sha256(
-        (config.secret_key + ":api").encode()
-    ).hexdigest()
+    expected = hashlib.sha256((config.secret_key + ":api").encode()).hexdigest()
 
     if not hmac.compare_digest(token, expected):
         raise HTTPException(

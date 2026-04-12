@@ -32,6 +32,7 @@ Security model
   would be tracked, a warning is emitted; callers should add
   ``.riskforge/`` to ``.gitignore``.
 """
+
 from __future__ import annotations
 
 import asyncio
@@ -92,8 +93,7 @@ class FileStore(StorageBackend):
         sentinel = self._root / SENTINEL
         if not sentinel.exists():
             sentinel.write_text(
-                "Do not delete this directory. "
-                "It contains the RiskForge audit log.\n",
+                "Do not delete this directory. It contains the RiskForge audit log.\n",
                 encoding="utf-8",
             )
             os.chmod(sentinel, stat.S_IRUSR | stat.S_IWUSR)
@@ -171,6 +171,7 @@ class FileStore(StorageBackend):
         FileExistsError
             If ``riskforge.yaml`` already exists.
         """
+
         def _sync() -> None:
             self._ensure_dirs()
             self._gitignore_check()
@@ -196,6 +197,7 @@ class FileStore(StorageBackend):
 
     async def write_system(self, system_id: str, data: AISystem) -> None:
         """Persist *data* to ``systems/{system_id}/system.yaml`` with chmod 600."""
+
         def _sync() -> None:
             self._ensure_dirs()
             sdir = self._system_dir(system_id)
@@ -219,26 +221,22 @@ class FileStore(StorageBackend):
         FileNotFoundError
             If the YAML file does not exist.
         """
+
         def _sync() -> AISystem:
             path = self._system_dir(system_id) / "system.yaml"
             if not path.exists():
-                raise FileNotFoundError(
-                    f"No system found for ID '{system_id}' at {path}"
-                )
+                raise FileNotFoundError(f"No system found for ID '{system_id}' at {path}")
             return AISystem.model_validate(yaml.safe_load(path.read_text(encoding="utf-8")))
 
         return await asyncio.to_thread(_sync)
 
     async def list_systems(self) -> list[str]:
         """Return sorted list of all system IDs under ``systems/``."""
+
         def _sync() -> list[str]:
             if not self._systems_dir.exists():
                 return []
-            return sorted(
-                entry.name
-                for entry in self._systems_dir.iterdir()
-                if entry.is_dir()
-            )
+            return sorted(entry.name for entry in self._systems_dir.iterdir() if entry.is_dir())
 
         return await asyncio.to_thread(_sync)
 
@@ -254,6 +252,7 @@ class FileStore(StorageBackend):
         - ``systems/{system_id}/mitigations.yaml`` — flat mitigation catalogue
           with back-links to each parent risk item
         """
+
         def _sync() -> None:
             self._ensure_dirs()
             sdir = self._system_dir(system_id)
@@ -306,12 +305,11 @@ class FileStore(StorageBackend):
         FileNotFoundError
             If ``register.yaml`` does not exist for *system_id*.
         """
+
         def _sync() -> RiskRegister:
             reg_path = self._system_dir(system_id) / "register.yaml"
             if not reg_path.exists():
-                raise FileNotFoundError(
-                    f"No register found for system '{system_id}' at {reg_path}"
-                )
+                raise FileNotFoundError(f"No register found for system '{system_id}' at {reg_path}")
             raw = yaml.safe_load(reg_path.read_text(encoding="utf-8"))
             return RiskRegister.model_validate(raw)
 
@@ -327,12 +325,10 @@ class FileStore(StorageBackend):
         The file is opened in append mode.  Callers in concurrent environments
         should serialise access externally; no file-level locking is applied.
         """
+
         def _sync() -> None:
             self._ensure_dirs()
-            line = (
-                json.dumps(entry.model_dump(mode="json"), separators=(",", ":"))
-                + "\n"
-            )
+            line = json.dumps(entry.model_dump(mode="json"), separators=(",", ":")) + "\n"
             with self._audit_path.open("a", encoding="utf-8") as fh:
                 fh.write(line)
             os.chmod(self._audit_path, stat.S_IRUSR | stat.S_IWUSR)
@@ -357,6 +353,7 @@ class FileStore(StorageBackend):
         ------
         AuditEntry
         """
+
         def _read_lines() -> list[str]:
             if not self._audit_path.exists():
                 return []
@@ -393,6 +390,7 @@ class FileStore(StorageBackend):
             ``(True, [])`` if the chain is intact, or
             ``(False, [<error>, ...])`` if any integrity failures are found.
         """
+
         def _sync() -> tuple[bool, list[str]]:
             if not self._audit_path.exists():
                 return True, []
@@ -420,8 +418,7 @@ class FileStore(StorageBackend):
 
                 if entry.seq != expected_seq:
                     errors.append(
-                        f"Line {lineno}: sequence gap — expected {expected_seq}, "
-                        f"got {entry.seq}."
+                        f"Line {lineno}: sequence gap — expected {expected_seq}, got {entry.seq}."
                     )
                 if entry.prev_hash != prev_hash:
                     errors.append(
@@ -442,9 +439,7 @@ class FileStore(StorageBackend):
             if ok:
                 logger.info("Audit chain verified — %d entries, no errors.", expected_seq)
             else:
-                logger.warning(
-                    "Audit chain verification failed — %d error(s).", len(errors)
-                )
+                logger.warning("Audit chain verification failed — %d error(s).", len(errors))
             return ok, errors
 
         return await asyncio.to_thread(_sync)
@@ -467,6 +462,7 @@ class FileStore(StorageBackend):
         str
             Absolute path to the written file.
         """
+
         def _sync() -> str:
             exports_dir = self._exports_dir(system_id)
             exports_dir.mkdir(mode=0o700, parents=True, exist_ok=True)
@@ -476,7 +472,10 @@ class FileStore(StorageBackend):
             os.chmod(out, stat.S_IRUSR | stat.S_IWUSR)
             logger.debug(
                 "Wrote export '%s.%s' for system '%s' (%d bytes)",
-                export_id, fmt, system_id, len(payload),
+                export_id,
+                fmt,
+                system_id,
+                len(payload),
             )
             return str(out.resolve())
 

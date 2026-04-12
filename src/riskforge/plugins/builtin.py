@@ -3,6 +3,7 @@
 These are thin wrappers that satisfy the entry_point registration contract.
 The actual questions live in src/riskforge/_data/question_bank/*.yaml.
 """
+
 from __future__ import annotations
 
 from riskforge.models.risk import RiskDimension
