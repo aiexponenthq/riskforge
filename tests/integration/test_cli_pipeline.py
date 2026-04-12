@@ -18,7 +18,7 @@ from typer.testing import CliRunner
 
 from riskforge.cli.main import app
 
-runner = CliRunner(mix_stderr=False)
+runner = CliRunner()
 
 
 def _init_project(tmp_dir: Path, name: str = "Pipeline Test System") -> str:
