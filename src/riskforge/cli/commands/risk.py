@@ -1,5 +1,6 @@
 """riskforge risk — risk item management subcommands."""
 from __future__ import annotations
+from typing import Optional
 
 import asyncio
 from pathlib import Path
@@ -16,7 +17,7 @@ console = Console()
 def list_risks(
     system_id: str = typer.Argument(..., help="System ID"),
     project_dir: Path = typer.Option(Path("."), "--project-dir"),
-    dimension: str | None = typer.Option(None, "--dimension", "-d"),
+    dimension: Optional[str] = typer.Option(None, "--dimension", "-d"),
 ) -> None:
     """List all risk items for a system."""
     from riskforge.models.risk import RiskDimension

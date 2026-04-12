@@ -30,7 +30,7 @@ class PDFExporter(Exporter):
             rmf=rmf,
             register=rmf.register,
             system=rmf.register.system,
-            items=rmf.register.system,
+            items=rmf.register.items,
             risk_band_colour={
                 "low": "#22c55e",
                 "medium": "#eab308",

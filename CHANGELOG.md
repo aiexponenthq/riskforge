@@ -6,6 +6,26 @@ Versioning: [Semantic Versioning](https://semver.org/)
 
 ## [Unreleased]
 
+## [0.1.1] - 2026-04-12
+
+### Fixed
+- **`riskforge assess` implemented** — interactive 8-dimension risk assessment fully wired:
+  question bank loop, pattern matching, likelihood/severity scoring via questionary,
+  knowledge gap flagging, progress bar, session summary. The core user workflow now works end-to-end.
+- **PDF exporter bug** — `items=rmf.register.system` corrected to `items=rmf.register.items`
+- **Audit chain** — three bugs fixed: `read_audit` converted to a true async generator;
+  genesis `prev_hash` initialisation aligned between `AuditEngine` and `FileStore.verify_chain`;
+  `_compute_hash` made consistent (`entry_hash=""` not `pop`)
+- **Sequence numbering** — first audit entry now has `seq=0` (was incorrectly `seq=1`)
+- **`RiskDimension` enum** — trimmed to 8 PRD-specified dimensions; removed 5 extra values
+  with no corresponding question bank YAML files
+- **Typer compatibility** — replaced `str | None` union syntax with `Optional[str]` across all CLI commands
+
+### Added
+- 8 new tests covering: audit chain integrity, tamper detection, sequence numbering,
+  assess engine question loading, knowledge gap flagging, PDF exporter regression guard
+- Total: 53 tests passing
+
 ## [0.1.0] - 2026-04-12
 
 ### Added

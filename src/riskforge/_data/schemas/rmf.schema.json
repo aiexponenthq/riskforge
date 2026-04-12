@@ -108,7 +108,8 @@
         "id": { "type": "string", "format": "uuid" },
         "dimension": {
           "type": "string",
-          "enum": ["health_safety", "fundamental_rights", "discrimination", "privacy", "transparency", "human_oversight", "robustness", "data_governance"]
+          "enum": ["health_safety", "fundamental_rights", "discrimination", "privacy", "transparency", "human_oversight", "robustness", "data_governance"],
+          "description": "8 EU AI Act Article 9 risk dimensions"
         },
         "title": { "type": "string", "minLength": 1 },
         "description": { "type": "string" },

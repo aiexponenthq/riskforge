@@ -149,7 +149,7 @@ class FileStore(StorageBackend):
             Lowercase hexadecimal SHA-256 digest.
         """
         data = entry.model_dump(mode="json")
-        data.pop("entry_hash", None)
+        data["entry_hash"] = ""  # canonical: entry_hash="" during hash computation
         canonical = json.dumps(
             {"prev_hash": prev_hash, **data},
             sort_keys=True,
@@ -364,24 +364,21 @@ class FileStore(StorageBackend):
 
         lines = await asyncio.to_thread(_read_lines)
 
-        async def _generate() -> AsyncIterator[AuditEntry]:
-            for line in lines:
-                line = line.strip()
-                if not line:
-                    continue
-                try:
-                    raw = json.loads(line)
-                except json.JSONDecodeError as exc:
-                    logger.warning("Skipping malformed audit line: %s", exc)
-                    continue
-                entry = AuditEntry.model_validate(raw)
-                if entry.seq < since_seq:
-                    continue
-                if system_id is not None and entry.system_id != system_id:
-                    continue
-                yield entry
-
-        return _generate()
+        for line in lines:
+            line = line.strip()
+            if not line:
+                continue
+            try:
+                raw = json.loads(line)
+            except json.JSONDecodeError as exc:
+                logger.warning("Skipping malformed audit line: %s", exc)
+                continue
+            entry = AuditEntry.model_validate(raw)
+            if entry.seq < since_seq:
+                continue
+            if system_id is not None and entry.system_id != system_id:
+                continue
+            yield entry
 
     async def verify_chain(self) -> tuple[bool, list[str]]:
         """Replay the audit chain and validate SHA-256 hash linkage.
@@ -401,7 +398,7 @@ class FileStore(StorageBackend):
                 return True, []
 
             errors: list[str] = []
-            prev_hash = ""
+            prev_hash = "0000000000"  # genesis value — must match AuditEngine._last_entry_hash
             expected_seq = 0
 
             for lineno, line in enumerate(

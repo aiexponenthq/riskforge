@@ -1,5 +1,6 @@
 """riskforge init — initialise a new risk management project."""
 from __future__ import annotations
+from typing import Optional
 
 from pathlib import Path
 
@@ -14,7 +15,7 @@ def cmd(
     version: str = typer.Option(..., "--version", "-v", help="AI system version"),
     purpose: str = typer.Option(..., "--purpose", "-p", help="One-sentence purpose statement"),
     provider: str = typer.Option(..., "--provider", help="Provider organisation name"),
-    category: str | None = typer.Option(
+    category: Optional[str] = typer.Option(
         None, "--category", "-c", help="Annex III category"
     ),
     project_dir: Path = typer.Option(Path("."), "--project-dir", help="Project directory"),
