@@ -5,13 +5,13 @@ on:
     tags: ["v*.*.*"]
 
 permissions:
-  id-token: write       # Sigstore OIDC + PyPI trusted publishing
-  contents: write       # GitHub Release creation
-  attestations: write   # Build provenance
+  id-token: write    # PyPI OIDC trusted publishing (includes Sigstore provenance)
+  contents: write    # GitHub Release creation
+  attestations: write
 
 jobs:
   release:
-    name: Build, Sign & Publish
+    name: Build & Publish
     runs-on: ubuntu-latest
     environment: pypi-publish
     steps:
@@ -24,7 +24,7 @@ jobs:
       - name: Install build tools
         run: pip install hatch pip-audit bandit
 
-      - name: Security gates (must pass before build)
+      - name: Security gates
         run: |
           pip install -e ".[dev]"
           bandit -ll -r src/
@@ -36,17 +36,15 @@ jobs:
       - name: Build wheel + sdist
         run: hatch build
 
+      - name: List built artifacts
+        run: ls -lh dist/
+
       - name: Generate CycloneDX SBOM
         run: |
           pip install cyclonedx-bom
           cyclonedx-py environment -o sbom.cdx.json --format json
 
-      - name: Sign with Sigstore (OIDC)
-        uses: sigstore/gh-action-sigstore-python@v2.1.1
-        with:
-          inputs: dist/*.whl dist/*.tar.gz
-
-      - name: Attest build provenance
+      - name: Attest build provenance (GitHub + Sigstore)
         uses: actions/attest-build-provenance@v2
         with:
           subject-path: dist/*
@@ -61,5 +59,4 @@ jobs:
           files: |
             dist/*.whl
             dist/*.tar.gz
-            dist/*.sigstore
             sbom.cdx.json
