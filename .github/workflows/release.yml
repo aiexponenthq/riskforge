@@ -52,7 +52,7 @@ jobs:
           subject-path: dist/*
 
       - name: Publish to PyPI (OIDC trusted publisher)
-        uses: pypa/gh-action-pypi-publish@release/v1
+        uses: pypa/gh-action-pypi-publish@v1.12.4
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
