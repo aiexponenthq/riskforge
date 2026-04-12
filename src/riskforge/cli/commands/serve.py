@@ -22,7 +22,7 @@ def cmd(
     The server is not imported by the CLI at startup — this lazy import
     preserves the CLI's zero-server-dependency guarantee.
     """
-    if allow_external and host == "0.0.0.0":  # noqa: S104
+    if allow_external and host == "0.0.0.0":  # noqa: S104  # nosec B104
         console.print(
             "[yellow]WARNING:[/yellow] Binding to 0.0.0.0 exposes the API externally. "
             "Ensure firewall rules and authentication are configured."
