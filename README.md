@@ -1,10 +1,19 @@
-# RiskForge
+<p align="center">
+  <a href="https://aiexponent.com"><img src=".github/brand/logo-full-light.png" alt="AiExponent — Building AI that deserves to be trusted" width="560"></a>
+</p>
 
-[![PyPI version](https://img.shields.io/pypi/v/riskforge.svg)](https://pypi.org/project/riskforge/)
-[![CI](https://github.com/aiexponenthq/riskforge/actions/workflows/ci.yml/badge.svg)](https://github.com/aiexponenthq/riskforge/actions)
-[![License: Apache 2.0](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](LICENSE)
-[![Python 3.11+](https://img.shields.io/badge/python-3.11%2B-blue.svg)](https://www.python.org/downloads/)
-[![Zero telemetry](https://img.shields.io/badge/telemetry-zero-green.svg)](#privacy)
+<h1 align="center">RiskForge</h1>
+<p align="center"><em>EU AI Act Article 9 risk management, as a developer workflow.</em></p>
+
+<p align="center">
+  <a href="https://pypi.org/project/riskforge/"><img src="https://img.shields.io/pypi/v/riskforge.svg" alt="PyPI version"></a>
+  <a href="https://github.com/aiexponenthq/riskforge/actions"><img src="https://github.com/aiexponenthq/riskforge/actions/workflows/ci.yml/badge.svg" alt="CI"></a>
+  <a href="LICENSE"><img src="https://img.shields.io/badge/License-Apache_2.0-0D5463.svg" alt="License: Apache 2.0"></a>
+  <a href="https://www.python.org/downloads/"><img src="https://img.shields.io/badge/python-3.11%2B-0D5463.svg" alt="Python 3.11+"></a>
+  <a href="#privacy"><img src="https://img.shields.io/badge/telemetry-zero-0B7A4B.svg" alt="Zero telemetry"></a>
+</p>
+
+---
 
 **RiskForge** is an open-source CLI that turns EU AI Act Article 9 compliance from a consultant invoice into a 30-minute developer workflow.
 
