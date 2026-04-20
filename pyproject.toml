@@ -9,7 +9,7 @@ description = "EU AI Act Article 9 Risk Management System — open-source CLI"
 readme = "README.md"
 license = {text = "Apache-2.0"}
 requires-python = ">=3.11"
-authors = [{name = "AiExponent LLC", email = "hello@aiexponent.com"}]
+authors = [{name = "AI Exponent LLC", email = "hello@aiexponent.com"}]
 keywords = ["eu-ai-act", "article-9", "risk-management", "compliance", "ai-governance"]
 classifiers = [
     "Development Status :: 3 - Alpha",

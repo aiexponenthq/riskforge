@@ -18,7 +18,7 @@ def _version_callback(value: bool) -> None:
 
 app = typer.Typer(
     name="riskforge",
-    help="EU AI Act Article 9 Risk Management System — AiExponent LLC",
+    help="EU AI Act Article 9 Risk Management System — AI Exponent LLC",
     no_args_is_help=True,
 )
 

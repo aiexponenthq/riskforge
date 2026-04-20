@@ -1,6 +1,6 @@
 # Contributing to RiskForge
 
-Thank you for your interest in contributing. RiskForge is an open-source EU AI Act Article 9 risk management tool built by [AiExponent LLC](https://aiexponent.com).
+Thank you for your interest in contributing. RiskForge is an open-source EU AI Act Article 9 risk management tool built by [AI Exponent LLC](https://aiexponent.com).
 
 ---
 

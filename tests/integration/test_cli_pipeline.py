@@ -56,7 +56,7 @@ def _init_project(tmp_dir: Path, name: str = "Pipeline Test System") -> str:
             "--purpose",
             f"Integration test for {name}.",
             "--provider",
-            "AiExponent LLC",
+            "AI Exponent LLC",
             "--category",
             "employment",
             "--project-dir",

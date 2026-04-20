@@ -19,7 +19,7 @@
 
 Answer 50+ guided questions about your AI system. RiskForge produces a SHA-256-signed Risk Management File (JSON + PDF) that satisfies Annex IV documentation requirements — ready for your legal team and your downstream compliance toolchain.
 
-Built by [AiExponent LLC](https://aiexponent.com). Apache 2.0. Runs entirely offline after `pip install`.
+Built by [AI Exponent LLC](https://aiexponent.com). Apache 2.0. Runs entirely offline after `pip install`.
 
 ---
 
@@ -262,7 +262,7 @@ Your AI system's risk data never leaves your machine unless you explicitly deplo
 
 [Apache 2.0](LICENSE) — free to use, modify, and distribute.
 
-Built by [AiExponent LLC](https://aiexponent.com) — `hello@aiexponent.com`
+Built by [AI Exponent LLC](https://aiexponent.com) — `hello@aiexponent.com`
 
 ---
 

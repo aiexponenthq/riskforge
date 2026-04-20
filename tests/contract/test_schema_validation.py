@@ -27,7 +27,7 @@ def minimal_rmf() -> RiskManagementFile:
         name="Fraud Detector",
         version="1.2",
         purpose="Detect fraudulent transactions in real time.",
-        provider_name="AiExponent LLC",
+        provider_name="AI Exponent LLC",
         annex_iii_category=AnnexIIICategory.essential_services,
         annex_iii_self_classification_documented=True,
     )
