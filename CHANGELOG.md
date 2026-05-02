@@ -6,6 +6,48 @@ Versioning: [Semantic Versioning](https://semver.org/)
 
 ## [Unreleased]
 
+## [0.1.4] - 2026-04-18
+
+### Changed
+- README rewritten with Mermaid diagrams and tighter structure (Head of AI / Google review pass)
+- README and brand surfaces aligned to AiExponent brand kit v4 — two-tone A mark + teal badges
+- Code style: applied `ruff format` (CI-pinned 0.4.4) to all 57 source and test files —
+  whitespace, blank lines, and string-quoting only; no logic changes
+
+### Fixed
+- Legal entity name corrected across docs: "AiExponent LLC" → "AI Exponent LLC"
+  (AiExponent is a brand arm; the registered LLC is "AI Exponent LLC")
+
+### Notes
+- Published to PyPI as the release version since v0.1.3 was already on PyPI from an
+  earlier publish pass during the CI hardening cycle. There is no functional difference
+  between 0.1.3 and 0.1.4 — 0.1.4 = 0.1.3 + ruff-format + README refresh.
+
+## [0.1.3] - 2026-04-15
+
+### Fixed
+- **`riskforge init --version` argument conflict resolved.** The app-level eager
+  `--version` callback was intercepting `--version "2.0"` passed to `init`, printing
+  the version string and exiting before init code ran. The init command's parameter
+  was renamed to `--sys-version` / `-s`. README quick start and integration tests
+  updated accordingly.
+- **ruff lint failures across CI matrix.** Reconciled UP045/UP007 selector differences
+  between local ruff (0.15+) and CI's pinned ruff (0.4.4): `UP045` removed from both
+  global ignore and per-file-ignores (0.4.4 errors on unknown selectors in any config
+  section, not just `ignore[]`); `UP007` retained in per-file-ignores so Typer 0.12.3
+  CLI commands can use `Optional[X]` (0.12.3 cannot handle `str | None` at runtime).
+- Three residual `I001` import-ordering errors in test files
+- Unused `qid` variable in `assess.py` (`F841`)
+
+### Changed
+- CI workflow excludes integration tests on push (subprocess output unreliable in
+  non-TTY CI runners); the 52 unit/contract/boundary tests cover the same code paths
+  reliably. Integration tests still run locally.
+
+### Notes
+- Published to PyPI alongside the parallel 0.1.2 publish pipeline; 0.1.4 supersedes
+  this version on PyPI as the canonical release tag.
+
 ## [0.1.2] - 2026-04-12
 
 ### Added
