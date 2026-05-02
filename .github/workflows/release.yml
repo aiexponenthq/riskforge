@@ -15,9 +15,9 @@ jobs:
     runs-on: ubuntu-latest
     environment: pypi-publish
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
-      - uses: actions/setup-python@v5
+      - uses: actions/setup-python@v6
         with:
           python-version: "3.11"
 
@@ -49,7 +49,7 @@ jobs:
           cyclonedx-py environment > sbom.cdx.json || true
 
       - name: Attest build provenance (GitHub + Sigstore)
-        uses: actions/attest-build-provenance@v2
+        uses: actions/attest-build-provenance@v4
         with:
           subject-path: dist/*
 
