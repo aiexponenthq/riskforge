@@ -6,6 +6,49 @@ Versioning: [Semantic Versioning](https://semver.org/)
 
 ## [Unreleased]
 
+## [1.0.0] - 2026-05-10
+
+First Production/Stable release. PyPI classifier flipped to `Development Status :: 5 - Production/Stable`. Closes the Top-N=4 audit pass; see `docs/audit/T-N4-readiness-2026-05-10.md` in the aiexponent monorepo for the full action list.
+
+### Highlights
+
+- 8 risk dimensions × 37 questions (canonical count, see PRD Amendments block in `PRD-RiskForge-v1.0.md`)
+- 6 Annex III risk patterns (community contributions extend the library)
+- 8 validation gates G1–G8
+- SHA-256 hash-chained audit trail (see `docs/audit-chain-design.md`)
+- Apache 2.0, hard-pinned deps for regulatory-evidence reproducibility
+- Sigstore attestations on PyPI + CycloneDX SBOM on every GitHub release
+
+### Fixed (production-affecting)
+
+- **Click 8.3 incompatibility broke `riskforge --version` and other Typer-dispatched outputs in fresh installs.** Click 8.3 (released after RiskForge v0.1.4) changed the `is_eager` callback dispatch path in a way that Typer 0.12.3 cannot reach. The version callback ran but produced no output; subprocess-based integration tests captured empty stdout. **Fix:** `click>=8.1,<8.2` hard pin in `pyproject.toml`. Verified 2026-05-10 on Python 3.12.2.
+
+### Changed
+
+- `[tool.coverage.report] fail_under` raised from `24` to `55` to prevent silent regression. Actual coverage on `main` post-fix: ~59% (`pytest --cov` 2026-05-10). PRD NFR-6's 80% target re-anchored to v1.1 milestone (server module test coverage).
+- `pyproject.toml` Documentation URL updated from `github.com/aiexponenthq/riskforge#readme` → `aiexponent.com/docs/riskforge`.
+- `riskforge tests` Typer help text aligned to Article 9(6)–(8) (was "9(7)" only).
+- `LICENSE` replaced with the verbatim Apache-2.0 SPDX template (canonical from apache.org). Earlier file had material text drift in §8 and was missing the Appendix template — caused GitHub to surface "NOASSERTION" instead of "Apache-2.0". `NOTICE` file added per Apache 2.0 §4(d) for the AI Exponent LLC copyright attribution.
+- README + CHANGELOG numeric claims corrected per the 2026-05-10 audit (see Documentation Correction subsection below).
+- PRD `PRD-RiskForge-v1.0.md` amended in-document with a "2026-05-10 — Pre-GA reality check" block reconciling 5 spec-vs-shipped gaps (200+→37 questions, 20→6 patterns, regulatory_ref→article_refs[] schema, 80%→55% coverage floor, hard-pin reinforcement).
+
+### Documentation correction (post-v0.1.4 audit, 2026-05-10)
+
+- **README + earlier CHANGELOG entries claimed "50+ guided questions"; actual count is 37.**
+  The 0.1.0 entry below stating "50+" was an aspirational PRD-target figure (PRD line 114
+  spec'd "200+" for v1.0; line 223 spec'd "3-5 per dimension × 8 dimensions = 24-40"). The
+  PRD has since been amended to reflect shipped reality (37 questions in v1.0; community
+  contributions extend the bank). Surfaces corrected: `README.md` hero + Art. 9 coverage
+  Mermaid; `CONTRIBUTING.md`; `lib/tools.ts` on aiexponent.com (already correct since v0.1.4).
+- **README claimed "20 Annex III scenarios" / "20 pre-built risk patterns"; actual count is 6.**
+  Same root cause — PRD line 256 spec'd "Minimum 20 patterns at v1.0". PRD amended to ship
+  reality (6 patterns covering credit scoring, hiring, facial recognition, medical imaging,
+  content moderation, criminal risk assessment). Future patterns ship via community contribution
+  — see `docs/contributing/add-pattern.md`.
+- **PyPI long-description on v0.1.4 still carries the original "50+" + "Built by AiExponent LLC"
+  text** because PyPI long-descriptions are immutable per release. Fix lands automatically with
+  the next release tag.
+
 ## [0.1.4] - 2026-04-18
 
 ### Changed
@@ -95,7 +138,7 @@ Versioning: [Semantic Versioning](https://semver.org/)
 ### Added
 - Initial release of RiskForge
 - Article 9 risk management system CLI
-- 8 risk dimensions with 50+ questions
+- 8 risk dimensions with 37 questions (see Unreleased section above for the historical "50+" correction)
 - 5x5 likelihood x severity scoring matrix
 - JSON, PDF, and Markdown export formats
 - SHA-256 hash-chain audit trail
