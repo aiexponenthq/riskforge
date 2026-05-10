@@ -21,11 +21,22 @@ Both paths are documented in detail in [`docs/contributing/`](docs/contributing/
 git clone https://github.com/aiexponenthq/riskforge
 cd riskforge
 make dev-setup      # pip install -e ".[dev]" + pre-commit install
-make test           # run full test suite (53 tests)
+make test           # run full test suite (57 tests as of v1.0.0; run `pytest --collect-only -q | tail -1` for the canonical count on `main`)
 make lint           # ruff check + format
 ```
 
 Requirements: Python 3.11+, Git.
+
+### Why dependencies are hard-pinned
+
+Every runtime dependency in `pyproject.toml` uses `==` (not `>=,<`). This is intentional and required by PRD NFR-6 (line 371): a RiskForge build that produces an Article 9 Risk Management File in May must produce a byte-identical RMF for the same inputs in August, regardless of upstream package drift. Regulatory evidence has to be reproducible.
+
+When upgrading a pin:
+
+1. Open a PR titled `deps: bump <pkg> <old> → <new>`
+2. Verify CI (especially `release.yml` SBOM diff) is green
+3. Add a CHANGELOG line under `[Unreleased]` naming the upgrade and the reason
+4. If the bump is a major version, run a sample `riskforge assess → export → verify` end-to-end and confirm the JSON/PDF artefacts match the prior release for the same inputs
 
 ---
 
@@ -87,7 +98,7 @@ Implement the `Exporter` ABC and register via entry point. See [`docs/contributi
 3. Create a branch: `git checkout -b fix/short-description`
 4. Write a test that covers the change
 5. Implement the change
-6. Run `make test` — all 53 tests must pass, no new failures
+6. Run `make test` — all tests must pass, no new failures (`pytest --collect-only -q | tail -1` reports the canonical count for the version on `main`)
 7. Run `make lint` — no ruff errors
 8. Open a pull request against `main`
 
