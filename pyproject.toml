@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "riskforge"
-version = "0.1.4"
+version = "1.0.0"
 description = "EU AI Act Article 9 Risk Management System — open-source CLI"
 readme = "README.md"
 license = {text = "Apache-2.0"}
@@ -12,7 +12,7 @@ requires-python = ">=3.11"
 authors = [{name = "AI Exponent LLC", email = "hello@aiexponent.com"}]
 keywords = ["eu-ai-act", "article-9", "risk-management", "compliance", "ai-governance"]
 classifiers = [
-    "Development Status :: 3 - Alpha",
+    "Development Status :: 5 - Production/Stable",
     "Intended Audience :: Developers",
     "License :: OSI Approved :: Apache Software License",
     "Operating System :: OS Independent",
@@ -23,8 +23,17 @@ classifiers = [
     "Topic :: Security",
     "Topic :: Software Development :: Quality Assurance",
 ]
+# Hard-pinned runtime dependencies — required by PRD NFR-6 (line 371) for
+# reproducibility. Loosening to ranges (>=, <) reintroduces the regulatory-evidence
+# stability problem the PRD names: a build that produces an Art. 9 RMF in May
+# must produce a byte-identical RMF in August for the same inputs, regardless of
+# upstream package drift. CONTRIBUTING.md documents the upgrade process.
 dependencies = [
     "typer[all]==0.12.3",
+    # Click 8.3+ broke is_eager callback dispatch for Typer 0.12.x — `riskforge --version`
+    # silently no-ops. Pin to <8.2 until Typer ships a compatible release. Verified
+    # 2026-05-10 on Python 3.12.2 against click 8.3.3 (broken) and 8.1.7 (working).
+    "click>=8.1,<8.2",
     "pydantic==2.7.1",
     "pydantic-settings==2.2.1",
     "pyyaml==6.0.1",
@@ -41,7 +50,7 @@ dependencies = [
 [project.urls]
 Homepage      = "https://github.com/aiexponenthq/riskforge"
 Repository    = "https://github.com/aiexponenthq/riskforge.git"
-Documentation = "https://github.com/aiexponenthq/riskforge#readme"
+Documentation = "https://aiexponent.com/docs/riskforge"
 Issues        = "https://github.com/aiexponenthq/riskforge/issues"
 Changelog     = "https://github.com/aiexponenthq/riskforge/releases"
 
@@ -119,4 +128,9 @@ source = ["riskforge"]
 branch = true
 
 [tool.coverage.report]
-fail_under = 24
+# v1.0 floor pragmatically set at 55%. PRD NFR-6 (line 375) targets ≥80%; the gap
+# is concentrated in the optional `riskforge.server` API surface (~0% coverage)
+# and is re-anchored to the v1.1 milestone — see CHANGELOG [Unreleased] note.
+# Raising in two steps: 24 → 55 (this release) → 80 (v1.1) prevents silent regression
+# without blocking GA on test-writing for the optional server module.
+fail_under = 55

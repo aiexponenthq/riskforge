@@ -18,7 +18,7 @@
 
 **RiskForge** is an open-source CLI that turns EU AI Act Article 9 compliance from a consultant invoice into a 30-minute developer workflow.
 
-Answer 50+ guided questions about your AI system. RiskForge produces a SHA-256-signed Risk Management File (JSON + PDF) that satisfies Annex IV documentation requirements — ready for your legal team and your downstream compliance toolchain.
+Answer 37 guided questions across 8 EU AI Act risk dimensions. RiskForge produces a SHA-256-signed Risk Management File (JSON + PDF) suitable for inclusion in your Annex IV technical documentation pack — ready for your legal team and your downstream compliance toolchain. (Not a substitute for notified-body conformity assessment.)
 
 Built by [AI Exponent LLC](https://aiexponent.com). Apache 2.0. Runs entirely offline after `pip install`.
 
@@ -41,17 +41,20 @@ riskforge init \
 ```
 
 ```bash
-# 2. Run the guided 8-dimension risk assessment (~25 minutes)
+# 2. Run the guided 8-dimension risk assessment (~30 minutes)
 riskforge assess <system-id> \
   --assessor-name "Alice Chen" \
   --assessor-role "AI Governance Lead"
 ```
 
 ```bash
-# 3. Check completeness before export
+# 3. (Optional) Derive Article 9(6)–(8) test requirements per identified risk
+riskforge tests generate <system-id>
+
+# 4. Check completeness before export
 riskforge validate <system-id>
 
-# 4. Export your Article 9 Risk Management File
+# 5. Export your Article 9 Risk Management File
 riskforge export <system-id> --format pdf --output rmf.pdf
 riskforge export <system-id> --format json --output rmf.json
 ```
@@ -66,10 +69,12 @@ The current alternatives:
 
 | Option | Cost | Time | Repeatable |
 |---|---|---|---|
-| Big 4 consulting | €80K–€350K per system | Weeks | No |
-| Enterprise GRC platforms | $60K–$200K/year | Months | Partial |
+| Big 4 consulting | €80K–€350K per system¹ | Weeks | No |
+| Enterprise GRC platforms | $60K–$200K/year¹ | Months | Partial |
 | Spreadsheets | Free | Days | No |
 | **RiskForge** | **Free** | **~30 min** | **Yes** |
+
+<sup>¹ Indicative market figures gathered from public Big-4 governance-engagement quotes and 2024–2026 enterprise GRC pricing pages. Not a benchmark study; your mileage will vary by scope, jurisdiction, and incumbent advisor.</sup>
 
 ---
 
@@ -113,34 +118,34 @@ Plain YAML + JSONL — readable by regulators without RiskForge installed, diff-
 
 ---
 
-## AiExponent Compliance Toolchain
+## AI Exponent compliance toolchain — planned integration
 
-RiskForge is the structural centre of the AiExponent compound moat. Every upstream tool feeds it; every downstream tool consumes it.
+RiskForge is designed to integrate with the broader AI Exponent toolchain. Today, only RiskForge and rag-benchmarking are available on PyPI. The other nodes below are on the public roadmap and will integrate via plain JSON files when they ship.
 
 ```mermaid
 graph LR
-    RAG["rag-benchmarking<br/>(accuracy evidence)"]
-    TF["TraceForge<br/>(data governance)"]
-    RF["RiskForge<br/>(Art. 9 RMS)"]
-    TD["TransparencyDeck<br/>(Art. 13 docs)"]
-    CB["ConformityBot<br/>(Art. 43 cert)"]
+    RAG["rag-benchmarking<br/>(accuracy evidence)<br/><i>shipped</i>"]
+    TF["TraceForge<br/>(data governance)<br/><i>roadmap</i>"]
+    RF["RiskForge<br/>(Art. 9 RMS)<br/><i>shipped</i>"]
+    TD["TransparencyDeck<br/>(Art. 13 docs)<br/><i>roadmap</i>"]
+    CB["ConformityBot<br/>(Art. 43 cert)<br/><i>roadmap</i>"]
     CCO["Compliance Officer<br/>(PDF)"]
 
     RAG -->|"benchmark_report.json"| RF
-    TF  -->|"trace_report.json"| RF
-    RF  -->|"rmf.json"| TD
-    RF  -->|"rmf.json"| CB
+    TF  -.->|"trace_report.json (planned)"| RF
     RF  -->|"rmf.pdf"| CCO
+    RF  -.->|"rmf.json (planned)"| TD
+    RF  -.->|"rmf.json (planned)"| CB
 
     style RF fill:#c9a84c,color:#000,stroke:#c9a84c
     style RAG fill:#1e3a5f,color:#fff
-    style TF fill:#1e3a5f,color:#fff
-    style TD fill:#1e3a5f,color:#fff
-    style CB fill:#1e3a5f,color:#fff
+    style TF fill:#6b7685,color:#fff,stroke-dasharray:5
+    style TD fill:#6b7685,color:#fff,stroke-dasharray:5
+    style CB fill:#6b7685,color:#fff,stroke-dasharray:5
     style CCO fill:#2d5a2d,color:#fff
 ```
 
-All connections are file-based. RiskForge never calls external APIs.
+All current connections are plain JSON files on disk. RiskForge never calls external APIs.
 
 ---
 
@@ -149,10 +154,10 @@ All connections are file-based. RiskForge never calls external APIs.
 ```mermaid
 graph LR
     A9_1["Art. 9(1)<br/>Establish RMS"] --> REG["Register lifecycle<br/>Version history<br/>Audit log"]
-    A9_2a["Art. 9(2)(a)<br/>Identify risks"] --> QB["Guided question bank<br/>8 dimensions · 50+ questions"]
-    A9_2b["Art. 9(2)(b)<br/>Estimate misuse risks"] --> PAT["Risk patterns<br/>20 Annex III scenarios"]
+    A9_2a["Art. 9(2)(a)<br/>Identify risks"] --> QB["Guided question bank<br/>8 dimensions · 37 questions"]
+    A9_2b["Art. 9(2)(b)<br/>Estimate misuse risks"] --> PAT["Risk patterns<br/>6 Annex III scenarios"]
     A9_4["Art. 9(4)<br/>Risk measures"] --> MIT["Mitigation docs<br/>Vague-detection"]
-    A9_7["Art. 9(7)<br/>Testing requirements"] --> TEST["riskforge tests generate<br/>Per-risk metric hints"]
+    A9_6_8["Art. 9(6)–(8)<br/>Testing requirements"] --> TEST["riskforge tests generate<br/>Per-risk metric hints"]
     A9_9["Art. 9(9)<br/>Vulnerable groups"] --> VG["Dedicated questions<br/>Mandatory flag"]
     A9_10["Art. 9(10)<br/>Documentation"] --> AUD["Append-only JSONL<br/>SHA-256 hash chain"]
 
@@ -160,7 +165,7 @@ graph LR
     style A9_2a fill:#1e3a5f,color:#fff
     style A9_2b fill:#1e3a5f,color:#fff
     style A9_4 fill:#1e3a5f,color:#fff
-    style A9_7 fill:#1e3a5f,color:#fff
+    style A9_6_8 fill:#1e3a5f,color:#fff
     style A9_9 fill:#1e3a5f,color:#fff
     style A9_10 fill:#1e3a5f,color:#fff
 ```
@@ -196,7 +201,7 @@ Before every export, `riskforge validate` runs 8 gates:
 | **Hash-chained audit** | Every mutation appended to `audit.jsonl`; `riskforge verify` exits code 2 on tampering |
 | **Schema-validated exports** | Every JSON export validated against `rmf.schema.json` before writing |
 | **PDF export** | WeasyPrint + Jinja2 — no LibreOffice or `wkhtmltopdf` required |
-| **Pattern matching** | 20 pre-built risk patterns for Annex III use cases (credit scoring, hiring, facial recognition…) |
+| **Pattern matching** | 6 pre-built risk patterns for common Annex III use cases (credit scoring, hiring, facial recognition, medical imaging, content moderation, criminal risk assessment) — community contributions extend the library |
 | **Plugin extensible** | Add question banks, exporters, adapters via `pip install` — no config edit required |
 | **Git-friendly state** | YAML + JSONL files — human-readable, diff-able, merge-conflict-resolvable |
 
@@ -241,7 +246,7 @@ make lint        # ruff check + format
 RiskForge makes **zero outbound network connections** in CLI mode, enforced in CI with `pytest-socket --disable-socket`.
 
 ```
-RiskForge v0.1.4 | Apache 2.0 | Zero telemetry | aiexponent.com
+RiskForge v1.0.0 | Apache 2.0 | Zero telemetry | aiexponent.com
 ```
 
 Your AI system's risk data never leaves your machine unless you explicitly deploy the optional API server (`pip install riskforge[server]`).
@@ -252,7 +257,9 @@ Your AI system's risk data never leaves your machine unless you explicitly deplo
 
 | Version | Highlights |
 |---|---|
-| [v0.1.4](https://github.com/aiexponenthq/riskforge/releases/tag/v0.1.4) | CI fixes: lint version compat, format alignment, --sys-version rename |
+| **[v1.0.0](https://github.com/aiexponenthq/riskforge/releases/tag/v1.0.0)** | First Production/Stable release. Click 8.3 regression fixed; LICENSE realigned to canonical SPDX; PRD amended to ship reality (37 questions, 6 patterns); coverage floor 24→55. |
+| [v0.1.4](https://github.com/aiexponenthq/riskforge/releases/tag/v0.1.4) | CI fixes: lint version compat, format alignment, `--sys-version` rename |
+| [v0.1.3](https://github.com/aiexponenthq/riskforge/releases/tag/v0.1.3) | Superseded by v0.1.4 (ruff format alignment) |
 | [v0.1.2](https://github.com/aiexponenthq/riskforge/releases/tag/v0.1.2) | OSS hardening: LICENSE, CONTRIBUTING, SECURITY, issue templates, full integration tests |
 | [v0.1.1](https://github.com/aiexponenthq/riskforge/releases/tag/v0.1.1) | `riskforge assess` fully implemented; PDF exporter fix; audit chain integrity fixes |
 | [v0.1.0](https://github.com/aiexponenthq/riskforge/releases/tag/v0.1.0) | Initial release |
