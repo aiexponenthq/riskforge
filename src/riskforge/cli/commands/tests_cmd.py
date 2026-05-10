@@ -8,7 +8,7 @@ from pathlib import Path
 import typer
 from rich.console import Console
 
-app = typer.Typer(help="Derive and list Article 9(7) test requirements.")
+app = typer.Typer(help="Derive and list Article 9(6)–(8) test requirements.")
 console = Console()
 
 
