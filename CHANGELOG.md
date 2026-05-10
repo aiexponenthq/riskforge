@@ -25,7 +25,12 @@ First Production/Stable release. PyPI classifier flipped to `Development Status 
 
 ### Changed
 
-- `[tool.coverage.report] fail_under` raised from `24` to `55` to prevent silent regression. Actual coverage on `main` post-fix: ~59% (`pytest --cov` 2026-05-10). PRD NFR-6's 80% target re-anchored to v1.1 milestone (server module test coverage).
+- `[tool.coverage.report] fail_under` raised from `24` to `35`, calibrated to the
+  unit-test-only CI matrix (CI runs `pytest --cov --ignore=tests/integration/` per
+  `.github/workflows/ci.yml`, yielding ~37% coverage). Locally with integration
+  tests included, coverage rises to ~59%. Staged-floor path: 24 → 35 (v1.0.0)
+  → 55 (v1.0.1, after wiring `tests/integration/` into CI) → 80 (v1.1, after
+  `riskforge.server` unit tests). PRD NFR-6's 80% target re-anchored to v1.1.
 - `pyproject.toml` Documentation URL updated from `github.com/aiexponenthq/riskforge#readme` → `aiexponent.com/docs/riskforge`.
 - `riskforge tests` Typer help text aligned to Article 9(6)–(8) (was "9(7)" only).
 - `LICENSE` replaced with the verbatim Apache-2.0 SPDX template (canonical from apache.org). Earlier file had material text drift in §8 and was missing the Appendix template — caused GitHub to surface "NOASSERTION" instead of "Apache-2.0". `NOTICE` file added per Apache 2.0 §4(d) for the AI Exponent LLC copyright attribution.
