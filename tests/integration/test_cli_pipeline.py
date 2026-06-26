@@ -182,9 +182,9 @@ def test_full_pipeline_init_validate_export_verify() -> None:
                 str(d),
             ]
         )
-        assert export_result.returncode == 0, (
-            f"export json failed:\n{export_result.stdout}\n{export_result.stderr}"
-        )
+        assert (
+            export_result.returncode == 0
+        ), f"export json failed:\n{export_result.stdout}\n{export_result.stderr}"
         assert output_json.exists(), "rmf.json not created"
 
         rmf = json.loads(output_json.read_text())
@@ -201,9 +201,9 @@ def test_full_pipeline_init_validate_export_verify() -> None:
                 str(d),
             ]
         )
-        assert verify_result.returncode == 0, (
-            f"verify failed (chain corrupt):\n{verify_result.stdout}"
-        )
+        assert (
+            verify_result.returncode == 0
+        ), f"verify failed (chain corrupt):\n{verify_result.stdout}"
         assert "verified" in (verify_result.stdout + verify_result.stderr).lower()
 
 
