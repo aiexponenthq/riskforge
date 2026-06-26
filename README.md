@@ -198,7 +198,7 @@ Before every export, `riskforge validate` runs 8 gates:
 | Feature | Detail |
 |---|---|
 | **Offline-first** | Zero outbound calls after `pip install` — enforced by `pytest-socket` CI gate |
-| **Hash-chained audit** | Every mutation appended to `audit.jsonl`; `riskforge verify` exits code 2 on tampering |
+| **Hash-chained audit** | Every mutation appended to `audit.jsonl` with atomic file locks; `riskforge verify` exits code 2 on tampering |
 | **Schema-validated exports** | Every JSON export validated against `rmf.schema.json` before writing |
 | **PDF export** | WeasyPrint + Jinja2 — no LibreOffice or `wkhtmltopdf` required |
 | **Pattern matching** | 6 pre-built risk patterns for common Annex III use cases (credit scoring, hiring, facial recognition, medical imaging, content moderation, criminal risk assessment) — community contributions extend the library |
