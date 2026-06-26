@@ -36,6 +36,7 @@ Security model
 from __future__ import annotations
 
 import asyncio
+import contextlib
 import hashlib
 import json
 import logging
@@ -44,12 +45,11 @@ import stat
 import subprocess
 import warnings
 from collections.abc import AsyncIterator
+from contextlib import AbstractAsyncContextManager
 from pathlib import Path
-from typing import AsyncContextManager
-import contextlib
 
-from filelock import FileLock
 import yaml
+from filelock import FileLock
 
 from riskforge.models.audit import AuditEntry
 from riskforge.models.register import RiskRegister
@@ -323,21 +323,22 @@ class FileStore(StorageBackend):
     # ------------------------------------------------------------------ #
 
     @contextlib.asynccontextmanager
-    async def audit_lock(self) -> AsyncContextManager[None]:
+    async def audit_lock(self) -> AbstractAsyncContextManager[None]:
         """Acquire an exclusive file lock for mutating the audit chain."""
         lock_path = self._root / "audit.lock"
+
         def _lock() -> FileLock:
             self._ensure_dirs()
             return FileLock(lock_path)
-        
+
         lock = await asyncio.to_thread(_lock)
-        
+
         def _acquire():
             lock.acquire()
-            
+
         def _release():
             lock.release()
-            
+
         await asyncio.to_thread(_acquire)
         try:
             yield

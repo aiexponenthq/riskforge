@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import pytest
+
 from riskforge.models.risk import Likelihood, RiskDimension, RiskItem, Severity
 
 

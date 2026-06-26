@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from abc import ABC, abstractmethod
 from collections.abc import AsyncIterator
-from typing import AsyncContextManager
+from contextlib import AbstractAsyncContextManager
 
 from riskforge.models.audit import AuditEntry
 from riskforge.models.register import RiskRegister
@@ -148,7 +148,7 @@ class StorageBackend(ABC):
         ...
 
     @abstractmethod
-    def audit_lock(self) -> AsyncContextManager[None]:
+    def audit_lock(self) -> AbstractAsyncContextManager[None]:
         """
         Return an asynchronous context manager that acquires an exclusive
         lock for mutating the audit chain.
