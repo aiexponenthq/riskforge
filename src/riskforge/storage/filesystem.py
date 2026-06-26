@@ -337,7 +337,7 @@ class FileStore(StorageBackend):
             lock.acquire()
 
         def _release():
-            lock.release()
+            lock.release(force=True)
 
         await asyncio.to_thread(_acquire)
         try:
