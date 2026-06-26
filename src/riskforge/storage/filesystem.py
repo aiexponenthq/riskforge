@@ -49,7 +49,7 @@ from contextlib import AbstractAsyncContextManager
 from pathlib import Path
 
 import yaml
-from filelock import FileLock
+from filelock import FileLock, Timeout
 
 from riskforge.models.audit import AuditEntry
 from riskforge.models.register import RiskRegister
@@ -328,27 +328,24 @@ class FileStore(StorageBackend):
         """Acquire an exclusive file lock for mutating the audit chain."""
         lock_path = self._root / "audit.lock"
 
-        def _lock() -> FileLock:
-            self._ensure_dirs()
-            return FileLock(lock_path)
-
         if getattr(self, "_async_lock", None) is None:
             self._async_lock = asyncio.Lock()
 
         async with self._async_lock:
-            lock = await asyncio.to_thread(_lock)
-
-            def _acquire():
-                lock.acquire()
-
-            def _release():
-                lock.release(force=True)
-
-            await asyncio.to_thread(_acquire)
+            self._ensure_dirs()
+            lock = FileLock(lock_path)
+            
+            while True:
+                try:
+                    lock.acquire(timeout=0)
+                    break
+                except Timeout:
+                    await asyncio.sleep(0.05)
+            
             try:
                 yield
             finally:
-                await asyncio.to_thread(_release)
+                lock.release()
 
     async def append_audit(self, entry: AuditEntry) -> None:
         """Append *entry* as a single JSON line to ``audit.jsonl``.
