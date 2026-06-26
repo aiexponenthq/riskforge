@@ -8,6 +8,7 @@ from pathlib import Path
 
 import jsonschema
 import pytest
+
 from riskforge.models.register import RiskRegister
 from riskforge.models.risk import Likelihood, RiskDimension, RiskItem, Severity
 from riskforge.models.rmf import RiskManagementFile
