@@ -35,7 +35,7 @@ def cmd(
     from riskforge.storage.filesystem import FileStore
 
     store = FileStore(project_dir)
-    
+
     # Pre-flight continuity check
     is_valid, violations = asyncio.run(store.verify_chain())
     if not is_valid:
