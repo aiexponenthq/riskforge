@@ -35,6 +35,13 @@ def cmd(
     from riskforge.storage.filesystem import FileStore
 
     store = FileStore(project_dir)
+    
+    # Pre-flight continuity check
+    is_valid, violations = asyncio.run(store.verify_chain())
+    if not is_valid:
+        console.print(f"[red]✗[/red] Audit chain is corrupt: {violations}")
+        raise typer.Exit(2)
+
     register = asyncio.run(store.read_register(system_id))
 
     # Run validation gates unless --force

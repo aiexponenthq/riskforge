@@ -40,27 +40,28 @@ class AuditEngine:
 
     async def record(self, event: str, system_id: str, payload: dict) -> AuditEntry:
         """Validates chain continuity BEFORE writing, then appends."""
-        is_valid, violations = await self._storage.verify_chain()
-        if not is_valid:
-            raise AuditChainCorruptError(
-                f"Audit chain corrupt before write: {violations}. "
-                "Run `riskforge verify` to diagnose."
+        async with self._storage.audit_lock():
+            is_valid, violations = await self._storage.verify_chain()
+            if not is_valid:
+                raise AuditChainCorruptError(
+                    f"Audit chain corrupt before write: {violations}. "
+                    "Run `riskforge verify` to diagnose."
+                )
+            prev_hash = await self._last_entry_hash()
+            seq = await self._next_seq()
+            entry = AuditEntry(
+                seq=seq,
+                event=event,
+                timestamp=datetime.now(UTC),
+                actor=self._actor,
+                system_id=system_id,
+                payload=payload,
+                prev_hash=prev_hash,
+                entry_hash="",  # computed below
             )
-        prev_hash = await self._last_entry_hash()
-        seq = await self._next_seq()
-        entry = AuditEntry(
-            seq=seq,
-            event=event,
-            timestamp=datetime.now(UTC),
-            actor=self._actor,
-            system_id=system_id,
-            payload=payload,
-            prev_hash=prev_hash,
-            entry_hash="",  # computed below
-        )
-        entry.entry_hash = self._compute_hash(prev_hash, entry)
-        await self._storage.append_audit(entry)
-        return entry
+            entry.entry_hash = self._compute_hash(prev_hash, entry)
+            await self._storage.append_audit(entry)
+            return entry
 
     @staticmethod
     def _compute_hash(prev_hash: str, entry: AuditEntry) -> str:
