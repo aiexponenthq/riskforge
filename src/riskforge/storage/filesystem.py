@@ -81,6 +81,7 @@ class FileStore(StorageBackend):
     def __init__(self, project_dir: Path) -> None:
         self._root = project_dir / ".riskforge"
         self._audit_path = self._root / "audit.jsonl"
+        self._async_lock = None
         self._systems_dir = self._root / "systems"
 
     # ------------------------------------------------------------------ #
@@ -331,19 +332,23 @@ class FileStore(StorageBackend):
             self._ensure_dirs()
             return FileLock(lock_path)
 
-        lock = await asyncio.to_thread(_lock)
+        if getattr(self, "_async_lock", None) is None:
+            self._async_lock = asyncio.Lock()
 
-        def _acquire():
-            lock.acquire()
+        async with self._async_lock:
+            lock = await asyncio.to_thread(_lock)
 
-        def _release():
-            lock.release(force=True)
+            def _acquire():
+                lock.acquire()
 
-        await asyncio.to_thread(_acquire)
-        try:
-            yield
-        finally:
-            await asyncio.to_thread(_release)
+            def _release():
+                lock.release(force=True)
+
+            await asyncio.to_thread(_acquire)
+            try:
+                yield
+            finally:
+                await asyncio.to_thread(_release)
 
     async def append_audit(self, entry: AuditEntry) -> None:
         """Append *entry* as a single JSON line to ``audit.jsonl``.
