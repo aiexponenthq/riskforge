@@ -95,6 +95,13 @@ async def _run_assess(
 
     # ── Bootstrap storage + engines ───────────────────────────────────────────
     store = FileStore(project_dir)
+    
+    # Pre-flight continuity check
+    is_valid, violations = await store.verify_chain()
+    if not is_valid:
+        console.print(f"[red]✗[/red] Audit chain is corrupt: {violations}")
+        raise typer.Exit(2)
+
     actor = AuditActor(type="human", identity=assessor_name)
     audit = AuditEngine(store, actor)
     risk_engine = RiskEngine(store, audit)

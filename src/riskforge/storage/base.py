@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from abc import ABC, abstractmethod
 from collections.abc import AsyncIterator
+from typing import AsyncContextManager
 
 from riskforge.models.audit import AuditEntry
 from riskforge.models.register import RiskRegister
@@ -143,6 +144,21 @@ class StorageBackend(ABC):
         -------
         list[str]
             Sorted list of system ID strings.
+        """
+        ...
+
+    @abstractmethod
+    def audit_lock(self) -> AsyncContextManager[None]:
+        """
+        Return an asynchronous context manager that acquires an exclusive
+        lock for mutating the audit chain.
+
+        This must be held across read-validate-append operations to prevent
+        branching the hash chain in concurrent environments.
+
+        Returns
+        -------
+        AsyncContextManager[None]
         """
         ...
 

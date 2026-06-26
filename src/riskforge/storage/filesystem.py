@@ -45,7 +45,10 @@ import subprocess
 import warnings
 from collections.abc import AsyncIterator
 from pathlib import Path
+from typing import AsyncContextManager
+import contextlib
 
+from filelock import FileLock
 import yaml
 
 from riskforge.models.audit import AuditEntry
@@ -318,6 +321,28 @@ class FileStore(StorageBackend):
     # ------------------------------------------------------------------ #
     # Audit log                                                            #
     # ------------------------------------------------------------------ #
+
+    @contextlib.asynccontextmanager
+    async def audit_lock(self) -> AsyncContextManager[None]:
+        """Acquire an exclusive file lock for mutating the audit chain."""
+        lock_path = self._root / "audit.lock"
+        def _lock() -> FileLock:
+            self._ensure_dirs()
+            return FileLock(lock_path)
+        
+        lock = await asyncio.to_thread(_lock)
+        
+        def _acquire():
+            lock.acquire()
+            
+        def _release():
+            lock.release()
+            
+        await asyncio.to_thread(_acquire)
+        try:
+            yield
+        finally:
+            await asyncio.to_thread(_release)
 
     async def append_audit(self, entry: AuditEntry) -> None:
         """Append *entry* as a single JSON line to ``audit.jsonl``.
