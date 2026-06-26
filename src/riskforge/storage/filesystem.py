@@ -334,14 +334,14 @@ class FileStore(StorageBackend):
         async with self._async_lock:
             self._ensure_dirs()
             lock = FileLock(lock_path)
-            
+
             while True:
                 try:
                     lock.acquire(timeout=0)
                     break
                 except Timeout:
                     await asyncio.sleep(0.05)
-            
+
             try:
                 yield
             finally:
