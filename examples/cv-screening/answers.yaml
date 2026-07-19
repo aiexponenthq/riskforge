@@ -1,0 +1,12 @@
+# Non-interactive assessment answers for the CV-screening example.
+# One answer per dimension so all 8 dimensions are covered (gate G1).
+add_patterns: true
+answers:
+  HS-001: { applies: yes, likelihood: 2, severity: 3 }
+  FR-001: { applies: yes, likelihood: 3, severity: 4 }
+  DI-001: { applies: yes, likelihood: 4, severity: 4 }
+  PR-001: { applies: yes, likelihood: 4, severity: 5 }
+  TR-001: { applies: yes, likelihood: 2, severity: 3 }
+  HO-001: { applies: yes, likelihood: 3, severity: 4 }
+  RO-001: { applies: unknown }
+  DG-001: { applies: yes, likelihood: 3, severity: 3 }
