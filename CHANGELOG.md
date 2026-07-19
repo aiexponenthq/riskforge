@@ -15,11 +15,13 @@ Versioning: [Semantic Versioning](https://semver.org/)
 ### Changed
 
 - Reclassified the package `Development Status` from Production/Stable to Beta while a release-hardening pass is in progress ahead of v1.1.0.
+- The optional API server (`riskforge serve`) is now clearly marked experimental: it prints a not-security-hardened warning at startup and in `--help`/README, and `--allow-external` is now enforced (binding to a non-localhost host without it is refused, where the flag previously only warned). The server will be hardened and tested before it leaves experimental status.
 
 ### Fixed
 
 - Exported Risk Management Files always carried empty `test_requirements` and `cross_references`, even after running `riskforge tests generate`. Export now derives both from the register (Article 9 test requirements per high-scoring or knowledge-gap risk item, and cross-references clustered by article reference), so the RMF is complete. The schema's `TestRequirement` definition gained the `nist_rmf_ref` field the model emits.
 - The `riskforge risk` group help advertised `add`, `edit`, and `score` subcommands that do not ship; it now lists only the actual commands (list, accept, mitigate).
+- `riskforge serve` printed an uninterpolated `http://{host}:{port}/docs` docs link (a missing f-string), and the `riskforge tests` group help advertised a `list` subcommand that does not ship. Both corrected.
 - The exported RMF always carried an empty `audit_entry_hash` (and `signed_by`), because both were set on the in-memory object after the file had already been written. Export now records the `rmf.exported` audit entry and populates both fields before rendering, so the artefact references its audit record. The self-verifying SHA-256 is computed over the document content with `sha256_hash`, `audit_entry_hash`, and `signed_by` blanked, and `verify --file` blanks the same three, so the digest still validates.
 - Risk Management File export failed for any register that recorded a mitigation. The bundled `rmf.schema.json` omitted the `article_ref` and `nist_rmf_ref` fields that the `Mitigation` model serialises, so schema validation aborted the export in every format (JSON, PDF, Markdown). Added the two fields to `$defs/Mitigation` and a regression test that exports a mitigation-bearing register in all three formats.
 - `riskforge risk accept` rejected the 8-character id that `riskforge risk list` prints (and that its own `--help` advertised), matching only the full UUID and crashing with an unhandled traceback on any other input. Accept now resolves a unique id prefix, and reports a clean error with exit code 1 for unknown or ambiguous ids.
