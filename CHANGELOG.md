@@ -13,6 +13,7 @@ Versioning: [Semantic Versioning](https://semver.org/)
 - `riskforge risk mitigate <system-id> <risk-id>` records a mitigation (description, control type, owner, status) against a risk item and optionally re-scores residual likelihood/severity, with an audit entry. Mitigations could previously only be added through the Python engine, so the Article 9(2)(d) risk-treatment step was unreachable from the CLI. Vague control descriptions are flagged.
 - A full user guide at `docs/user-guide.md`: install and system dependencies, a worked quickstart, a command reference with exit codes, the non-interactive answers-file format, a CI-integration recipe, plugin authoring, interpreting the RMF, limitations, and an FAQ. Linked from the README.
 - An `examples/` directory with worked sample systems (CV screening, credit scoring), each with a `config.yaml`, a non-interactive `answers.yaml`, and a golden RMF. `scripts/eval.py` (`make eval` / `make eval-update`) runs every example headless through init, classify, assess, accept, and export, then diffs the normalised RMF against its golden. Wired into CI via `tests/integration/test_examples.py`, so a change to scoring, questions, or the schema surfaces as a golden drift.
+- A `benchmarks/` performance harness (`make bench`, `benchmarks/perf.py`) measuring audit-append and `add_risk` scaling, with documented numbers in `benchmarks/README.md`.
 
 ### Changed
 
@@ -25,6 +26,7 @@ Versioning: [Semantic Versioning](https://semver.org/)
 
 ### Fixed
 
+- The hash-chained audit append was O(n) per write (it re-verified the whole chain and scanned it twice more, for the last hash and next sequence), so building an N-entry chain was O(n^2) and a large register stalled for minutes. Each append now chains from the tail (one entry read plus a tail-integrity check), making a build O(n): 1000 entries went from a multi-second stall to about 0.4s (see `benchmarks/`). Full-chain verification stays available via `riskforge verify`, and a new test checks that a tampered tail is refused at append time.
 - Exported Risk Management Files always carried empty `test_requirements` and `cross_references`, even after running `riskforge tests generate`. Export now derives both from the register (Article 9 test requirements per high-scoring or knowledge-gap risk item, and cross-references clustered by article reference), so the RMF is complete. The schema's `TestRequirement` definition gained the `nist_rmf_ref` field the model emits.
 - The `riskforge risk` group help advertised `add`, `edit`, and `score` subcommands that do not ship; it now lists only the actual commands (list, accept, mitigate).
 - `riskforge serve` printed an uninterpolated `http://{host}:{port}/docs` docs link (a missing f-string), and the `riskforge tests` group help advertised a `list` subcommand that does not ship. Both corrected.

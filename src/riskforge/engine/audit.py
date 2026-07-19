@@ -17,38 +17,36 @@ class AuditChainCorruptError(RuntimeError):
 class AuditEngine:
     """Manages the append-only, hash-chained audit log.
 
-    Every state mutation must go through record(). The chain is validated
-    before every write — any tampering is detected before a new entry is appended.
-    Exit code 2 is the contract for riskforge verify failures (CI-detectable).
+    Every state mutation must go through record(). Each append chains from the
+    current tail and verifies that tail entry before writing; full-chain
+    verification is available via `riskforge verify`. Exit code 2 is the contract
+    for riskforge verify failures (CI-detectable).
     """
 
     def __init__(self, storage: StorageBackend, actor: AuditActor) -> None:
         self._storage = storage
         self._actor = actor
 
-    async def _last_entry_hash(self) -> str:
-        last = "0000000000"
-        async for entry in self._storage.read_audit():
-            last = entry.entry_hash
-        return last
-
-    async def _next_seq(self) -> int:
-        last = -1  # first entry will have seq=0
-        async for entry in self._storage.read_audit():
-            last = entry.seq
-        return last + 1
-
     async def record(self, event: str, system_id: str, payload: dict) -> AuditEntry:
-        """Validates chain continuity BEFORE writing, then appends."""
+        """Append a hash-chained entry.
+
+        Chains from the current tail (read under the audit lock) and verifies that
+        tail entry's own hash before appending, so building N entries is O(N), not
+        O(N^2). Full-chain verification is the job of ``riskforge verify``.
+        """
         async with self._storage.audit_lock():
-            is_valid, violations = await self._storage.verify_chain()
-            if not is_valid:
-                raise AuditChainCorruptError(
-                    f"Audit chain corrupt before write: {violations}. "
-                    "Run `riskforge verify` to diagnose."
-                )
-            prev_hash = await self._last_entry_hash()
-            seq = await self._next_seq()
+            last = await self._storage.read_last_audit_entry()
+            if last is None:
+                prev_hash = "0000000000"
+                seq = 0
+            else:
+                if self._compute_hash(last.prev_hash, last) != last.entry_hash:
+                    raise AuditChainCorruptError(
+                        "Audit chain tail is corrupt (last entry hash mismatch). "
+                        "Run `riskforge verify` to diagnose."
+                    )
+                prev_hash = last.entry_hash
+                seq = last.seq + 1
             entry = AuditEntry(
                 seq=seq,
                 event=event,
