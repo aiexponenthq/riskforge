@@ -10,6 +10,7 @@ Versioning: [Semantic Versioning](https://semver.org/)
 
 - Risk Management File export failed for any register that recorded a mitigation. The bundled `rmf.schema.json` omitted the `article_ref` and `nist_rmf_ref` fields that the `Mitigation` model serialises, so schema validation aborted the export in every format (JSON, PDF, Markdown). Added the two fields to `$defs/Mitigation` and a regression test that exports a mitigation-bearing register in all three formats.
 - `riskforge risk accept` rejected the 8-character id that `riskforge risk list` prints (and that its own `--help` advertised), matching only the full UUID and crashing with an unhandled traceback on any other input. Accept now resolves a unique id prefix, and reports a clean error with exit code 1 for unknown or ambiguous ids.
+- `riskforge verify --file <rmf.json>` accepted the option but ignored it, always checking the project audit chain instead, so a tampered standalone RMF still reported "no tampering detected". `--file` now recomputes the RMF's self-verifying SHA-256 digest and exits 2 when the content no longer matches it.
 
 ## [1.0.0] - 2026-05-10
 

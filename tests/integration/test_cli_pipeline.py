@@ -264,6 +264,32 @@ def test_risk_accept_by_prefix_and_clean_error() -> None:
 
 
 @pytest.mark.enable_socket
+def test_verify_file_detects_tampered_rmf() -> None:
+    """`verify --file` validates a standalone RMF's digest: exit 0 clean, exit 2 tampered."""
+    with tempfile.TemporaryDirectory() as tmp:
+        d = Path(tmp)
+        sid = _init_project(d, "Verify File System")
+        _seed_register(d, sid)
+        out = d / "rmf.json"
+        exp = _run(
+            ["export", sid, "-f", "json", "-o", str(out), "--force", "--project-dir", str(d)]
+        )
+        assert exp.returncode == 0, f"export failed:\n{exp.output}"
+
+        clean = _run(["verify", "--file", str(out)])
+        assert clean.returncode == 0, f"clean RMF should verify (0):\n{clean.output}"
+
+        data = json.loads(out.read_text())
+        data["register"]["items"][0]["title"] = "TAMPERED BY ATTACKER"
+        out.write_text(json.dumps(data, indent=2))
+
+        tampered = _run(["verify", "--file", str(out)])
+        assert (
+            tampered.returncode == 2
+        ), f"tampered RMF must exit 2, got {tampered.returncode}:\n{tampered.output}"
+
+
+@pytest.mark.enable_socket
 def test_risk_list_shows_seeded_items() -> None:
     """riskforge risk list must return seeded items."""
     with tempfile.TemporaryDirectory() as tmp:
