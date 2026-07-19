@@ -170,7 +170,7 @@ graph LR
     style A9_10 fill:#1e3a5f,color:#fff
 ```
 
-Cross-maps to: **NIST AI RMF** (GOVERN/MAP/MEASURE/MANAGE) · **ISO/IEC 42001** (Clauses 6.1, 8.4, A.6–A.9) · **Colorado AI Act SB 24-205** · **Texas HB 1709**
+Cross-maps to: **NIST AI RMF** (GOVERN/MAP/MEASURE/MANAGE) · **ISO/IEC 42001** (Clauses 6.1, 8.4, A.6–A.9) · **Colorado AI Act (SB 24-205, reset by SB 26-189)** · **Texas HB 149 (TRAIGA)**
 
 > **Disclaimer:** RiskForge produces documented evidence for Article 9 compliance. It does not substitute for qualified legal counsel or notified body conformity assessment.
 
