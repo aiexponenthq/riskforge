@@ -6,6 +6,12 @@ Versioning: [Semantic Versioning](https://semver.org/)
 
 ## [Unreleased]
 
+## [1.1.2] - 2026-07-19
+
+### Changed
+
+- Documentation links now point at the in-repo guides. The package `Documentation` URL and the README's docs link previously targeted the product overview page, and the README link was relative, which resolves to a 404 on the PyPI project page. Both now point at the repository `docs/` folder, which renders the full user guide, the EU AI Act Article 9 mapping, and the audit-chain design (including the architecture diagrams) on GitHub. A `docs/README.md` index was added as the folder landing.
+
 ## [1.1.1] - 2026-07-19
 
 ### Changed
