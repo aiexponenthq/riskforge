@@ -16,6 +16,7 @@ Versioning: [Semantic Versioning](https://semver.org/)
 
 - Reclassified the package `Development Status` from Production/Stable to Beta while a release-hardening pass is in progress ahead of v1.1.0.
 - The optional API server (`riskforge serve`) is now clearly marked experimental: it prints a not-security-hardened warning at startup and in `--help`/README, and `--allow-external` is now enforced (binding to a non-localhost host without it is refused, where the flag previously only warned). The server will be hardened and tested before it leaves experimental status.
+- Test posture made honest and enforced: the `pyproject.toml` coverage comment was corrected (it claimed CI runs a unit-only `--ignore=tests/integration/` subset at ~37%, but CI runs the full suite at ~65%), the floor (`fail_under`) was raised 55 to 60, and a new CLI-surface contract test fails if a command group's help advertises a subcommand that does not ship.
 
 ### Fixed
 
