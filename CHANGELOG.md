@@ -9,6 +9,7 @@ Versioning: [Semantic Versioning](https://semver.org/)
 ### Added
 
 - `riskforge system classify <system-id> --confirm` records the provider's Article 6(2) Annex III self-classification and writes an audit entry. This was previously unreachable: no CLI command set the flag that validation gate G2 requires, so validation could not pass without hand-editing state files or using `--force`. An optional `--category` records or updates the Annex III category at the same time.
+- `riskforge assess --answers <file.yaml>` runs the 8-dimension assessment non-interactively from a YAML answers file (question id to `applies` / `likelihood` / `severity`, plus an `add_patterns` flag), taking the same engine path as the interactive session. This enables reproducible fixtures, CI re-assessment, and scripted sample data. The interactive path is unchanged.
 
 ### Changed
 
