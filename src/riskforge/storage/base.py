@@ -203,6 +203,18 @@ class StorageBackend(ABC):
         """
         ...
 
+    async def read_last_audit_entry(self) -> AuditEntry | None:
+        """Return the most recent audit entry, or ``None`` if the log is empty.
+
+        The audit append path calls this once per write to chain from the tail,
+        so backends should override it with an efficient tail read. The default
+        streams the whole log, which is correct but O(n) per call.
+        """
+        last: AuditEntry | None = None
+        async for entry in self.read_audit():
+            last = entry
+        return last
+
     @abstractmethod
     async def verify_chain(self) -> tuple[bool, list[str]]:
         """
