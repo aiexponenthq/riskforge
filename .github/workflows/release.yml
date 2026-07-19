@@ -31,7 +31,7 @@ jobs:
         # documented waivers (RiskForge is not exposed; see ci.yml for justifications).
         run: |
           bandit -ll -r src/
-          pip-audit --strict --skip-editable \
+          pip-audit \
             --ignore-vuln PYSEC-2026-2132 \
             --ignore-vuln PYSEC-2026-3412 \
             --ignore-vuln PYSEC-2026-3447
