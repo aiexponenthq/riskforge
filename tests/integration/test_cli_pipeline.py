@@ -237,6 +237,33 @@ def test_export_markdown_contains_risk_items() -> None:
 
 
 @pytest.mark.enable_socket
+def test_risk_accept_by_prefix_and_clean_error() -> None:
+    """`risk accept` resolves the 8-char id from `risk list`; unknown ids exit 1 cleanly."""
+    import asyncio
+
+    from riskforge.storage.filesystem import FileStore
+
+    with tempfile.TemporaryDirectory() as tmp:
+        d = Path(tmp)
+        sid = _init_project(d, "Accept Test System")
+        _seed_register(d, sid, one_dim=True)
+
+        reg = asyncio.run(FileStore(d).read_register(sid))
+        prefix = str(reg.items[0].id)[:8]
+
+        ok = _run(
+            ["risk", "accept", sid, prefix, "-r", "Accepted after review.", "--project-dir", str(d)]
+        )
+        assert ok.returncode == 0, f"prefix accept failed:\n{ok.output}"
+        assert "accepted" in ok.output.lower()
+
+        bad = _run(["risk", "accept", sid, "00000000", "-r", "x", "--project-dir", str(d)])
+        assert bad.returncode == 1, f"expected clean exit 1, got {bad.returncode}:\n{bad.output}"
+        assert "Traceback" not in bad.output, f"unhandled crash:\n{bad.output}"
+        assert "No risk item matches" in bad.output
+
+
+@pytest.mark.enable_socket
 def test_risk_list_shows_seeded_items() -> None:
     """riskforge risk list must return seeded items."""
     with tempfile.TemporaryDirectory() as tmp:
