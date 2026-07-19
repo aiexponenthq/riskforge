@@ -123,6 +123,19 @@ class FileStore(StorageBackend):
             pass  # git not installed or not in a repo
 
     def _system_dir(self, system_id: str) -> Path:
+        # Reject path traversal before system_id reaches the filesystem. Legitimate
+        # ids are UUIDs (riskforge init); an id containing a path separator, "..",
+        # or a null byte is an attempt to escape the systems/ directory. A benign
+        # typo (no separators) still falls through to a clean "not found" error.
+        if (
+            system_id in ("", ".", "..")
+            or "/" in system_id
+            or "\\" in system_id
+            or "\x00" in system_id
+        ):
+            raise ValueError(
+                f"Invalid system id '{system_id}': must not contain path separators or '..'."
+            )
         return self._systems_dir / system_id
 
     def _exports_dir(self, system_id: str) -> Path:
