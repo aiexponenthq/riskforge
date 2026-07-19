@@ -249,7 +249,7 @@ RiskForge makes **zero outbound network connections** in CLI mode, enforced in C
 RiskForge v1.0.0 | Apache 2.0 | Zero telemetry | aiexponent.com
 ```
 
-Your AI system's risk data never leaves your machine unless you explicitly deploy the optional API server (`pip install riskforge[server]`).
+Your AI system's risk data never leaves your machine unless you explicitly deploy the optional API server (`pip install riskforge[server]`). That server is **experimental**: it is not security-hardened and is not part of the flagship test suite, so run it only on a trusted, local network.
 
 ---
 
