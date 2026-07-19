@@ -12,6 +12,7 @@ Versioning: [Semantic Versioning](https://semver.org/)
 - `riskforge assess --answers <file.yaml>` runs the 8-dimension assessment non-interactively from a YAML answers file (question id to `applies` / `likelihood` / `severity`, plus an `add_patterns` flag), taking the same engine path as the interactive session. This enables reproducible fixtures, CI re-assessment, and scripted sample data. The interactive path is unchanged.
 - `riskforge risk mitigate <system-id> <risk-id>` records a mitigation (description, control type, owner, status) against a risk item and optionally re-scores residual likelihood/severity, with an audit entry. Mitigations could previously only be added through the Python engine, so the Article 9(2)(d) risk-treatment step was unreachable from the CLI. Vague control descriptions are flagged.
 - A full user guide at `docs/user-guide.md`: install and system dependencies, a worked quickstart, a command reference with exit codes, the non-interactive answers-file format, a CI-integration recipe, plugin authoring, interpreting the RMF, limitations, and an FAQ. Linked from the README.
+- An `examples/` directory with worked sample systems (CV screening, credit scoring), each with a `config.yaml`, a non-interactive `answers.yaml`, and a golden RMF. `scripts/eval.py` (`make eval` / `make eval-update`) runs every example headless through init, classify, assess, accept, and export, then diffs the normalised RMF against its golden. Wired into CI via `tests/integration/test_examples.py`, so a change to scoring, questions, or the schema surfaces as a golden drift.
 
 ### Changed
 
@@ -20,6 +21,7 @@ Versioning: [Semantic Versioning](https://semver.org/)
 - Test posture made honest and enforced: the `pyproject.toml` coverage comment was corrected (it claimed CI runs a unit-only `--ignore=tests/integration/` subset at ~37%, but CI runs the full suite at ~65%), the floor (`fail_under`) was raised 55 to 60, and a new CLI-surface contract test fails if a command group's help advertises a subcommand that does not ship.
 - README accuracy pass: the hero logo now uses an absolute URL (it 404'd on the PyPI project page); the "SHA-256-signed" claim is corrected to "tamper-evident, SHA-256 self-verifying digest" (the RMF is hashed, and only signed when `--sign` is used); the Quick Start shows the complete workflow including the required `system classify` step, `--answers`, `risk mitigate`, and `verify --file`; a PDF system-dependencies note was added; and the on-disk layout diagram was corrected to the real `.riskforge/systems/` structure.
 - CONTRIBUTING claimed that question-bank changes are gated by a CI-enforced "legal team approval" GitHub Environment, which does not exist; it is now stated as a maintainer review policy. The stale hardcoded test count was replaced with a reference to `pytest --collect-only`. Em-dashes swept from README and CONTRIBUTING per the human-voice standard.
+- Makefile: the `pdf-preview` target used the removed `--version` flag (now `--sys-version`), and the `audit` target referenced a non-existent `requirements.txt` (now plain `pip-audit`).
 
 ### Fixed
 

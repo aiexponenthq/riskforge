@@ -1,0 +1,11 @@
+# Non-interactive assessment answers for the credit-scoring example.
+add_patterns: true
+answers:
+  HS-001: { applies: yes, likelihood: 1, severity: 3 }
+  FR-001: { applies: yes, likelihood: 3, severity: 4 }
+  DI-001: { applies: yes, likelihood: 4, severity: 5 }
+  PR-001: { applies: yes, likelihood: 3, severity: 4 }
+  TR-001: { applies: yes, likelihood: 3, severity: 3 }
+  HO-001: { applies: yes, likelihood: 2, severity: 4 }
+  RO-001: { applies: yes, likelihood: 3, severity: 4 }
+  DG-001: { applies: unknown }
