@@ -4,7 +4,7 @@
   "title": "RiskManagementFile",
   "description": "EU AI Act Article 9 Risk Management File — produced by RiskForge v0.1.0",
   "type": "object",
-  "required": ["id", "rmf_schema_version", "register", "generated_at", "sha256_hash"],
+  "required": ["id", "rmf_schema_version", "register", "generated_at", "sha256_hash", "disclosure"],
   "properties": {
     "id": {
       "type": "string",
@@ -46,7 +46,9 @@
       "default": ""
     },
     "disclosure": {
-      "type": "string"
+      "type": "string",
+      "minLength": 1,
+      "description": "Mandatory non-legal-advice disclosure. Required and non-empty so a hand-crafted or tampered RMF cannot validate without it."
     }
   },
   "additionalProperties": false,
