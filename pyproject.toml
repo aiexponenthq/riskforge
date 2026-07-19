@@ -51,7 +51,7 @@ dependencies = [
 [project.urls]
 Homepage      = "https://github.com/aiexponenthq/riskforge"
 Repository    = "https://github.com/aiexponenthq/riskforge.git"
-Documentation = "https://aiexponent.com/docs/riskforge"
+Documentation = "https://github.com/aiexponenthq/riskforge/tree/main/docs"
 Issues        = "https://github.com/aiexponenthq/riskforge/issues"
 Changelog     = "https://github.com/aiexponenthq/riskforge/releases"
 

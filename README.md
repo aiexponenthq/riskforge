@@ -22,7 +22,7 @@ Answer 37 guided questions across 8 EU AI Act risk dimensions. RiskForge produce
 
 Built by [AI Exponent LLC](https://aiexponent.com). Apache 2.0. Runs entirely offline after `pip install`.
 
-**Documentation:** the [full user guide](docs/user-guide.md) covers the command reference, exit codes, CI integration, plugin authoring, and FAQ.
+**Documentation:** the [full documentation](https://github.com/aiexponenthq/riskforge/tree/main/docs) covers installation, the command reference with exit codes, the EU AI Act Article 9 mapping, CI integration, plugin authoring, the audit-chain design, and an FAQ.
 
 ---
 
