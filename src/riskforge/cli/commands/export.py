@@ -17,7 +17,9 @@ def cmd(
     fmt: str = typer.Option("json", "--format", "-f", help="Export format: json, pdf, markdown"),
     output: Optional[Path] = typer.Option(None, "--output", "-o", help="Output file path"),
     project_dir: Path = typer.Option(Path("."), "--project-dir"),
-    sign: Optional[Path] = typer.Option(None, "--sign", help="PGP key path for signing"),
+    sign: Optional[str] = typer.Option(
+        None, "--sign", help="GPG key id, email, or fingerprint to sign with (detached .asc)"
+    ),
     force: bool = typer.Option(False, "--force", help="Skip validation gates"),
 ) -> None:
     """Export the Risk Management File to JSON, PDF, or Markdown.
@@ -27,7 +29,7 @@ def cmd(
     """
 
     from riskforge.engine.audit import AuditEngine
-    from riskforge.engine.export import ExportEngine
+    from riskforge.engine.export import ExportEngine, SigningError
     from riskforge.engine.validate import ValidateEngine
     from riskforge.models.audit import AuditActor
     from riskforge.models.rmf import RiskManagementFile
@@ -77,7 +79,11 @@ def cmd(
     audit = AuditEngine(store, actor)
     engine = ExportEngine(registry, audit)
 
-    result_path = asyncio.run(engine.export(rmf, fmt, output, sign_with=sign))
+    try:
+        result_path = asyncio.run(engine.export(rmf, fmt, output, sign_with=sign))
+    except SigningError as exc:
+        console.print(f"[red]✗[/red] {exc}")
+        raise typer.Exit(1)
 
     console.print(f"[green]✓[/green] Exported: [bold]{result_path}[/bold]")
     console.print(f"  SHA-256: [dim]{rmf.sha256_hash}[/dim]")

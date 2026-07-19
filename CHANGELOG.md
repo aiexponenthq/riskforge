@@ -16,6 +16,7 @@ Versioning: [Semantic Versioning](https://semver.org/)
 - `riskforge risk accept` rejected the 8-character id that `riskforge risk list` prints (and that its own `--help` advertised), matching only the full UUID and crashing with an unhandled traceback on any other input. Accept now resolves a unique id prefix, and reports a clean error with exit code 1 for unknown or ambiguous ids.
 - `riskforge verify --file <rmf.json>` accepted the option but ignored it, always checking the project audit chain instead, so a tampered standalone RMF still reported "no tampering detected". `--file` now recomputes the RMF's self-verifying SHA-256 digest and exits 2 when the content no longer matches it.
 - The validation gate G2 remediation hint told users to run `riskforge system edit`, which does not ship. It now points at `riskforge system classify`.
+- `riskforge export --sign` ignored the supplied key: `gpg` was invoked with no `--local-user`, so the detached signature used GPG's default key (false signer provenance), and a GPG error surfaced as an unhandled traceback. The key is now passed to `--local-user`, the signer is recorded on the RMF, and signing failures exit 1 with a clear message. The `--sign` value is a GPG key identifier (email, key id, or fingerprint), not a file path.
 
 ## [1.0.0] - 2026-05-10
 
