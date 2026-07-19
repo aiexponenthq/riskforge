@@ -15,6 +15,7 @@ from datetime import UTC, datetime, timedelta
 from importlib.resources import files
 
 import jsonschema
+import pytest
 from riskforge.models.register import RiskRegister
 from riskforge.models.risk import (
     Likelihood,
@@ -94,3 +95,27 @@ def test_schema_mitigation_allows_model_fields() -> None:
     assert (
         model_fields <= allowed
     ), f"model emits fields the schema rejects: {model_fields - allowed}"
+
+
+def test_schema_requires_nonempty_disclosure() -> None:
+    """The mandatory disclosure is enforced by the schema, not only injected by the
+    export path. A hand-crafted or downstream-tampered RMF that drops or empties the
+    disclosure must fail schema validation, so non-removability does not rest solely
+    on RiskForge's own export code.
+    """
+    schema = _schema()
+    payload = _rmf_with_mitigation().model_dump(mode="json", by_alias=True)
+
+    # Baseline: a fully-formed RMF carries a non-empty disclosure and validates.
+    assert payload.get("disclosure")
+    jsonschema.validate(payload, schema)
+
+    # Disclosure removed -> rejected by `required`.
+    without = {k: v for k, v in payload.items() if k != "disclosure"}
+    with pytest.raises(jsonschema.ValidationError):
+        jsonschema.validate(without, schema)
+
+    # Disclosure present but empty -> rejected by `minLength`.
+    emptied = {**payload, "disclosure": ""}
+    with pytest.raises(jsonschema.ValidationError):
+        jsonschema.validate(emptied, schema)
