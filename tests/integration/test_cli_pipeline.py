@@ -321,6 +321,79 @@ def test_verify_file_detects_tampered_rmf() -> None:
 
 
 @pytest.mark.enable_socket
+def test_assess_noninteractive_from_answers_file() -> None:
+    """`assess --answers` builds the register non-interactively from a YAML file."""
+    import asyncio
+
+    import riskforge._data as _data_pkg
+    from riskforge.engine.assess import AssessEngine
+    from riskforge.models.risk import RiskDimension
+    from riskforge.storage.filesystem import FileStore
+
+    with tempfile.TemporaryDirectory() as tmp:
+        d = Path(tmp)
+        sid = _init_project(d, "Answers Test System")
+
+        engine = AssessEngine(Path(_data_pkg.__file__).parent)
+        priv_q = engine.load_questions(RiskDimension.privacy)[0]["id"]
+        disc_q = engine.load_questions(RiskDimension.discrimination)[0]["id"]
+
+        answers = d / "answers.yaml"
+        answers.write_text(
+            "add_patterns: true\n"
+            "answers:\n"
+            f"  {priv_q}: {{ applies: yes, likelihood: 4, severity: 5 }}\n"
+            f"  {disc_q}: {{ applies: unknown }}\n"
+        )
+
+        res = _run(
+            [
+                "assess",
+                sid,
+                "-a",
+                "Alice",
+                "-r",
+                "Lead",
+                "--answers",
+                str(answers),
+                "--project-dir",
+                str(d),
+            ]
+        )
+        assert res.returncode == 0, f"non-interactive assess failed:\n{res.output}"
+
+        reg = asyncio.run(FileStore(d).read_register(sid))
+        assert any(
+            i.source == "question_bank" and i.risk_score == 20 for i in reg.items
+        ), f"scored item (4x5=20) missing:\n{[(i.source, i.risk_score) for i in reg.items]}"
+        assert any(i.knowledge_gap for i in reg.items), "knowledge-gap item missing"
+
+
+@pytest.mark.enable_socket
+def test_assess_noninteractive_missing_file_exits_1() -> None:
+    """A missing answers file is a clean exit 1, not a traceback."""
+    with tempfile.TemporaryDirectory() as tmp:
+        d = Path(tmp)
+        sid = _init_project(d, "Answers Missing System")
+        res = _run(
+            [
+                "assess",
+                sid,
+                "-a",
+                "A",
+                "-r",
+                "B",
+                "--answers",
+                str(d / "nope.yaml"),
+                "--project-dir",
+                str(d),
+            ]
+        )
+        assert res.returncode == 1, f"expected exit 1, got {res.returncode}:\n{res.output}"
+        assert "Traceback" not in res.output
+
+
+@pytest.mark.enable_socket
 def test_risk_list_shows_seeded_items() -> None:
     """riskforge risk list must return seeded items."""
     with tempfile.TemporaryDirectory() as tmp:
