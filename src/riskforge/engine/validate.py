@@ -68,8 +68,7 @@ class ValidateEngine:
                 "Article 6(2) self-classification documented",
                 GateStatus.FAIL,
                 "Provider must confirm Annex III self-classification before export. "
-                "Run `riskforge system edit` and set "
-                "annex_iii_self_classification_documented=true.",
+                "Run `riskforge system classify <system-id> --confirm` to record it.",
             )
         return GateResult("G2", "Article 6(2) self-classification documented", GateStatus.PASS)
 

@@ -76,7 +76,7 @@ def _init_project(tmp_dir: Path, name: str = "Pipeline Test System") -> str:
     return sid
 
 
-def _seed_register(tmp_dir: Path, sid: str, one_dim: bool = False) -> None:
+def _seed_register(tmp_dir: Path, sid: str, one_dim: bool = False, classify: bool = True) -> None:
     """Seed a register directly via the engine (bypasses interactive assess)."""
     import asyncio
 
@@ -90,7 +90,7 @@ def _seed_register(tmp_dir: Path, sid: str, one_dim: bool = False) -> None:
     async def _run_async():
         store = FileStore(tmp_dir)
         sys_obj = await store.read_system(sid)
-        sys_obj.annex_iii_self_classification_documented = True
+        sys_obj.annex_iii_self_classification_documented = classify
         await store.write_system(sid, sys_obj)
         reg = RiskRegister(
             system=sys_obj,
@@ -261,6 +261,37 @@ def test_risk_accept_by_prefix_and_clean_error() -> None:
         assert bad.returncode == 1, f"expected clean exit 1, got {bad.returncode}:\n{bad.output}"
         assert "Traceback" not in bad.output, f"unhandled crash:\n{bad.output}"
         assert "No risk item matches" in bad.output
+
+
+@pytest.mark.enable_socket
+def test_system_classify_clears_g2() -> None:
+    """`system classify --confirm` records Article 6(2) so validation gate G2 passes.
+
+    Before this command existed there was no CLI path to set the flag, so validation
+    could never pass without hand-editing state files or using --force.
+    """
+    with tempfile.TemporaryDirectory() as tmp:
+        d = Path(tmp)
+        sid = _init_project(d, "Classify Test System")
+        _seed_register(d, sid, classify=False)
+
+        before = _run(["validate", sid, "--project-dir", str(d)])
+        assert (
+            before.returncode == 1
+        ), f"G2 should block validation before classify:\n{before.output}"
+
+        cls = _run(["system", "classify", sid, "--confirm", "--project-dir", str(d)])
+        assert cls.returncode == 0, f"classify failed:\n{cls.output}"
+        assert "recorded" in cls.output.lower()
+
+        show = _run(["system", "show", sid, "--project-dir", str(d)])
+        assert '"annex_iii_self_classification_documented": true' in show.output
+
+        after = _run(["validate", sid, "--project-dir", str(d)])
+        assert after.returncode == 0, f"validation should pass after classify:\n{after.output}"
+
+        chain = _run(["verify", "--project-dir", str(d)])
+        assert chain.returncode == 0, f"classify must not break the audit chain:\n{chain.output}"
 
 
 @pytest.mark.enable_socket

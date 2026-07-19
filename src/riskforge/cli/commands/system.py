@@ -4,11 +4,12 @@ from __future__ import annotations
 
 import asyncio
 from pathlib import Path
+from typing import Optional  # noqa: UP007 — Typer 0.12.3 compat
 
 import typer
 from rich.console import Console
 
-app = typer.Typer(help="Manage the AI system record: show, edit.")
+app = typer.Typer(help="Manage the AI system record: show, classify.")
 console = Console()
 
 
@@ -27,3 +28,84 @@ def show_system(
     store = FileStore(project_dir)
     system = asyncio.run(store.read_system(system_id))
     print_json(json.dumps(system.model_dump(mode="json"), indent=2))
+
+
+@app.command("classify")
+def classify_system(
+    system_id: str = typer.Argument(..., help="System ID"),
+    confirm: bool = typer.Option(
+        False, "--confirm", help="Confirm the provider's Article 6(2) Annex III self-classification"
+    ),
+    category: Optional[str] = typer.Option(
+        None, "--category", "-c", help="Annex III category to record (optional)"
+    ),
+    project_dir: Path = typer.Option(Path("."), "--project-dir"),
+) -> None:
+    """Record the provider's Article 6(2) Annex III self-classification (clears gate G2).
+
+    The provider, not the tool, decides whether a system is high-risk under Annex III.
+    This records that determination and writes an audit entry. Re-run with --confirm.
+    """
+    from riskforge.engine.audit import AuditEngine
+    from riskforge.models.audit import AuditActor
+    from riskforge.models.system import AnnexIIICategory
+    from riskforge.storage.filesystem import FileStore
+
+    if not confirm:
+        console.print(
+            "[yellow]![/yellow] This records the provider's own determination that the system is "
+            "high-risk under Annex III (Article 6(2)). Re-run with [bold]--confirm[/bold] to record it."
+        )
+        raise typer.Exit(1)
+
+    cat_enum = None
+    if category is not None:
+        try:
+            cat_enum = AnnexIIICategory(category)
+        except ValueError:
+            valid = ", ".join(c.value for c in AnnexIIICategory)
+            console.print(f"[red]✗[/red] Unknown category '{category}'. Valid: {valid}")
+            raise typer.Exit(1)
+
+    async def _run() -> None:
+        store = FileStore(project_dir)
+        try:
+            system = await store.read_system(system_id)
+        except FileNotFoundError:
+            console.print(
+                f"[red]✗[/red] System [bold]{system_id}[/bold] not found. Run riskforge init first."
+            )
+            raise typer.Exit(1)
+
+        system.annex_iii_self_classification_documented = True
+        if cat_enum is not None:
+            system.annex_iii_category = cat_enum
+        await store.write_system(system_id, system)
+
+        # Keep the register's embedded system in sync: validate reads it, not system.yaml.
+        try:
+            register = await store.read_register(system_id)
+        except FileNotFoundError:
+            register = None
+        if register is not None:
+            register.system.annex_iii_self_classification_documented = True
+            if cat_enum is not None:
+                register.system.annex_iii_category = cat_enum
+            await store.write_register(system_id, register)
+
+        recorded_category = cat_enum or system.annex_iii_category
+        audit = AuditEngine(store, AuditActor(type="human", identity="cli"))
+        await audit.record(
+            "system.classified",
+            system_id,
+            {
+                "annex_iii_self_classification_documented": True,
+                "annex_iii_category": recorded_category.value if recorded_category else None,
+            },
+        )
+
+    asyncio.run(_run())
+    console.print(
+        f"[green]✓[/green] Article 6(2) self-classification recorded for "
+        f"[bold]{system_id[:8]}[/bold]. Gate G2 will pass."
+    )
