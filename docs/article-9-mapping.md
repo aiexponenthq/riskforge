@@ -34,18 +34,23 @@ high-risk AI systems under Chapter III, Section 2 of the EU AI Act. It requires:
 
 ### When it applies
 
-Article 9 obligations for high-risk AI systems become enforceable on
-**2 August 2026**, by application of Article 113 of the EU AI Act
-(default application date for Chapter III, Section 2 obligations).
+Article 9 obligations for high-risk AI systems apply from **2 December 2027** for
+standalone Annex III systems and **2 August 2028** for high-risk AI embedded in
+products under Annex I. The original Article 113 date was 2 August 2026; the
+Digital Omnibus deferred it. That package was endorsed by the European Parliament
+on 16 June 2026 and by the Council on 29 June 2026 and is pending publication in
+the Official Journal, entering into force on the third day after publication.
+Until it publishes, the original 2 August 2026 date remains technically in force,
+so re-verify the status when the date matters.
 
 For the avoidance of doubt:
 
 - Articles 5 (prohibited practices) and 4 (AI literacy) became enforceable on
-  2 February 2025 — earlier than Article 9.
-- Articles 6+ obligations (the "high-risk system" obligations Article 9 belongs
-  to) apply from 2 August 2026.
-- Some general-purpose AI model obligations have a different timeline; not in
-  scope for this document.
+  2 February 2025, earlier than Article 9.
+- The Article 6+ high-risk obligations that Article 9 belongs to apply from
+  2 December 2027 (Annex III) or 2 August 2028 (Annex I) under the Digital Omnibus.
+- Some general-purpose AI model obligations have a different timeline and are not
+  in scope for this document.
 
 ### Penalty band
 
@@ -692,21 +697,21 @@ needs are similar.
 
 | Statute | Relevant content | RiskForge dimension(s) |
 | --- | --- | --- |
-| Colorado AI Act SB 24-205 (effective 1 February 2026) | Risk management programme + impact assessment for "high-risk artificial intelligence systems" used in "consequential decisions" | data_governance, discrimination, fundamental_rights, transparency |
-| Texas HB 1709 ("TRAIGA", effective 1 January 2026) | Disclosure + bias testing for AI in employment, finance, healthcare, housing | discrimination, transparency, privacy |
+| Colorado AI Act (SB 24-205, repealed and reenacted by SB 26-189, effective 1 January 2027) | SB 26-189 replaced the high-risk risk-management and impact-assessment duties with a narrower automated-decision-making disclosure framework; the earlier structure still informs evidence needs | data_governance, discrimination, fundamental_rights, transparency |
+| Texas HB 149 ("TRAIGA", signed 22 June 2025, effective 1 January 2026) | Intent-based prohibitions on harmful AI uses plus transparency and disclosure duties, enforced by the Attorney General | discrimination, transparency, privacy |
 | New York City Local Law 144 (in force) | Bias audits for automated employment decision tools | discrimination |
 | Illinois 820 ILCS 42 (AI Video Interview Act) | Notice + consent for AI-assisted interview analysis | transparency, privacy |
 
-The Colorado and Texas statutes were enacted later than the EU AI Act and
-borrow some structural features (risk-management programme, impact
-assessment). Neither is a one-for-one substitute. Always confirm against the
-current text of the statute.
+The Colorado and Texas statutes were enacted after the EU AI Act. Colorado's
+original risk-management structure has since been narrowed by SB 26-189, and
+neither statute is a one-for-one substitute for Article 9. Always confirm against
+the current text of the statute.
 
 Sources:
 
-- Colorado SB 24-205 — <https://leg.colorado.gov/bills/sb24-205>
-- Texas HB 1709 — Texas Legislature Online
-- NYC LL 144 — DCWP rules
+- Colorado AI Act (SB 24-205, reset by SB 26-189): <https://leg.colorado.gov/bills/sb24-205>
+- Texas HB 149 (TRAIGA): Texas Legislature Online
+- NYC LL 144: DCWP rules
 
 If your organisation operates in additional US states, contribute the
 mapping back to `docs/contributing/add-jurisdiction.md` (planned).
