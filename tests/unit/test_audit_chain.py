@@ -7,7 +7,7 @@ from datetime import UTC, datetime, timedelta
 from pathlib import Path
 
 import pytest
-from riskforge.engine.audit import AuditEngine
+from riskforge.engine.audit import AuditChainCorruptError, AuditEngine
 from riskforge.engine.risk import RiskEngine
 from riskforge.models.audit import AuditActor
 from riskforge.models.register import RiskRegister
@@ -195,3 +195,24 @@ def test_pdf_exporter_uses_items_not_system() -> None:
     assert (
         "items=rmf.register.system" not in source
     ), "PDF exporter regression: items=rmf.register.system found"
+
+
+@pytest.mark.asyncio
+@pytest.mark.enable_socket
+async def test_record_rejects_tampered_tail(tmp_path: Path) -> None:
+    """A record onto a chain whose tail entry was tampered must be refused."""
+    store = FileStore(tmp_path)
+    sid = await _bootstrap(store, _make_system())
+    audit = AuditEngine(store, AuditActor(type="human", identity="tester"))
+    engine = RiskEngine(store, audit)
+    await engine.add_risk(sid, _make_item(0))
+
+    audit_path = store._audit_path
+    lines = audit_path.read_text().splitlines()
+    raw = json.loads(lines[-1])
+    raw["event"] = "tampered_event"
+    lines[-1] = json.dumps(raw)
+    audit_path.write_text("\n".join(lines) + "\n")
+
+    with pytest.raises(AuditChainCorruptError):
+        await audit.record("risk_item.created", sid, {})

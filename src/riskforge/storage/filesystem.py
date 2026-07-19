@@ -418,6 +418,24 @@ class FileStore(StorageBackend):
                 continue
             yield entry
 
+    async def read_last_audit_entry(self) -> AuditEntry | None:
+        """Return the last audit entry, parsing only the final line (O(1) entries)."""
+
+        def _sync() -> AuditEntry | None:
+            if not self._audit_path.exists():
+                return None
+            last_line = ""
+            with self._audit_path.open("r", encoding="utf-8") as fh:
+                for raw in fh:
+                    stripped = raw.strip()
+                    if stripped:
+                        last_line = stripped
+            if not last_line:
+                return None
+            return AuditEntry.model_validate(json.loads(last_line))
+
+        return await asyncio.to_thread(_sync)
+
     async def verify_chain(self) -> tuple[bool, list[str]]:
         """Replay the audit chain and validate SHA-256 hash linkage.
 

@@ -1,4 +1,4 @@
-.PHONY: dev-setup test test-fast lint format pdf-preview schema-validate eval eval-update clean install audit
+.PHONY: dev-setup test test-fast lint format pdf-preview schema-validate eval eval-update bench clean install audit
 
 dev-setup:
 	pip install -e ".[dev]"
@@ -18,6 +18,9 @@ eval:
 
 eval-update:
 	python scripts/eval.py --update
+
+bench:
+	python benchmarks/perf.py
 
 lint:
 	ruff check src/ tests/
