@@ -153,7 +153,9 @@
         "owner": { "type": "string" },
         "status": { "type": "string", "enum": ["planned", "implemented", "verified"] },
         "evidence_refs": { "type": "array", "items": { "type": "string" }, "default": [] },
-        "is_vague": { "type": "boolean", "default": false }
+        "is_vague": { "type": "boolean", "default": false },
+        "article_ref": { "type": "string", "default": "" },
+        "nist_rmf_ref": { "type": "string", "default": "" }
       },
       "additionalProperties": false
     },

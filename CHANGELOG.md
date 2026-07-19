@@ -6,9 +6,22 @@ Versioning: [Semantic Versioning](https://semver.org/)
 
 ## [Unreleased]
 
+### Added
+
+- `riskforge system classify <system-id> --confirm` records the provider's Article 6(2) Annex III self-classification and writes an audit entry. This was previously unreachable: no CLI command set the flag that validation gate G2 requires, so validation could not pass without hand-editing state files or using `--force`. An optional `--category` records or updates the Annex III category at the same time.
+
 ### Changed
 
 - Reclassified the package `Development Status` from Production/Stable to Beta while a release-hardening pass is in progress ahead of v1.1.0.
+
+### Fixed
+
+- Risk Management File export failed for any register that recorded a mitigation. The bundled `rmf.schema.json` omitted the `article_ref` and `nist_rmf_ref` fields that the `Mitigation` model serialises, so schema validation aborted the export in every format (JSON, PDF, Markdown). Added the two fields to `$defs/Mitigation` and a regression test that exports a mitigation-bearing register in all three formats.
+- `riskforge risk accept` rejected the 8-character id that `riskforge risk list` prints (and that its own `--help` advertised), matching only the full UUID and crashing with an unhandled traceback on any other input. Accept now resolves a unique id prefix, and reports a clean error with exit code 1 for unknown or ambiguous ids.
+- `riskforge verify --file <rmf.json>` accepted the option but ignored it, always checking the project audit chain instead, so a tampered standalone RMF still reported "no tampering detected". `--file` now recomputes the RMF's self-verifying SHA-256 digest and exits 2 when the content no longer matches it.
+- The validation gate G2 remediation hint told users to run `riskforge system edit`, which does not ship. It now points at `riskforge system classify`.
+- `riskforge export --sign` ignored the supplied key: `gpg` was invoked with no `--local-user`, so the detached signature used GPG's default key (false signer provenance), and a GPG error surfaced as an unhandled traceback. The key is now passed to `--local-user`, the signer is recorded on the RMF, and signing failures exit 1 with a clear message. The `--sign` value is a GPG key identifier (email, key id, or fingerprint), not a file path.
+- Corrected regulatory citations in `README.md` and `docs/article-9-mapping.md`, each re-verified against source: the Texas statute is **HB 149 (TRAIGA)**, signed 22 June 2025 and effective 1 January 2026 (the repo previously cited HB 1709, which never became law); the Article 9 high-risk application date is **2 December 2027** for standalone Annex III systems, deferred from 2 August 2026 by the Digital Omnibus (endorsed by Parliament 16 June and Council 29 June 2026, pending OJEU publication), with 2 August 2028 for Annex I product-embedded systems; and the Colorado AI Act (SB 24-205) was repealed and reenacted by **SB 26-189**, effective 1 January 2027. Added a CI gate (`tests/contract/test_regulatory_claims.py`) that fails on known-wrong citations.
 
 ## [1.0.0] - 2026-05-10
 

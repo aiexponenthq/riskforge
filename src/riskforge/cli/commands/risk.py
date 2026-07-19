@@ -61,7 +61,7 @@ def accept_risk(
 ) -> None:
     """Accept a risk item with a documented rationale."""
     from riskforge.engine.audit import AuditEngine
-    from riskforge.engine.risk import RiskEngine
+    from riskforge.engine.risk import AmbiguousRiskIdError, RiskEngine, RiskNotFoundError
     from riskforge.models.audit import AuditActor
     from riskforge.storage.filesystem import FileStore
 
@@ -70,5 +70,19 @@ def accept_risk(
     audit = AuditEngine(store, actor)
     engine = RiskEngine(store, audit)
 
-    item = asyncio.run(engine.accept_risk(system_id, risk_id, rationale, "cli"))
+    try:
+        item = asyncio.run(engine.accept_risk(system_id, risk_id, rationale, "cli"))
+    except RiskNotFoundError:
+        console.print(
+            f"[red]✗[/red] No risk item matches id [bold]{risk_id}[/bold] in this register. "
+            "Run [bold]riskforge risk list[/bold] to see the ids."
+        )
+        raise typer.Exit(1)
+    except AmbiguousRiskIdError as exc:
+        console.print(f"[red]✗[/red] {exc}")
+        raise typer.Exit(1)
+    except ValueError as exc:
+        console.print(f"[red]✗[/red] {exc}")
+        raise typer.Exit(1)
+
     console.print(f"[green]✓[/green] Risk [bold]{str(item.id)[:8]}[/bold] accepted and audited.")

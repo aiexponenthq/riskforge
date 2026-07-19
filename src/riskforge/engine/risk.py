@@ -24,6 +24,10 @@ class RiskNotFoundError(KeyError):
     pass
 
 
+class AmbiguousRiskIdError(KeyError):
+    """Raised when a risk id prefix matches more than one item."""
+
+
 class RiskEngine:
     """CRUD and scoring for risk items. All writes emit audit entries."""
 
@@ -73,9 +77,8 @@ class RiskEngine:
         if not rationale.strip():
             raise ValueError("Acceptance rationale is required and cannot be empty.")
         register = await self._storage.read_register(system_id)
-        item = next((i for i in register.items if str(i.id) == risk_id), None)
-        if item is None:
-            raise RiskNotFoundError(risk_id)
+        item = self._resolve_risk_item(register.items, risk_id)
+        risk_id = str(item.id)
         old_accepted = item.accepted
         item.accepted = True
         item.acceptance_rationale = rationale
@@ -110,3 +113,23 @@ class RiskEngine:
     @staticmethod
     def _hash_rationale(rationale: str) -> str:
         return hashlib.sha256(rationale.encode()).hexdigest()[:16]
+
+    @staticmethod
+    def _resolve_risk_item(items: list[RiskItem], risk_id: str) -> RiskItem:
+        """Resolve a full or prefix risk id to a single item.
+
+        `risk list` prints the first 8 characters of each id, so users pass a
+        prefix. Accept an exact match first, then a unique prefix match. Raise a
+        clear error when nothing matches or the prefix is ambiguous.
+        """
+        exact = [i for i in items if str(i.id) == risk_id]
+        if len(exact) == 1:
+            return exact[0]
+        matches = [i for i in items if str(i.id).startswith(risk_id)]
+        if len(matches) == 1:
+            return matches[0]
+        if not matches:
+            raise RiskNotFoundError(risk_id)
+        raise AmbiguousRiskIdError(
+            f"'{risk_id}' matches {len(matches)} risk items; use more characters of the id."
+        )

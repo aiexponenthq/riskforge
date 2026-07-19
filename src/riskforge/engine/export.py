@@ -15,6 +15,10 @@ class SchemaViolationError(RuntimeError):
     """Raised when an RMF document fails schema validation at export time."""
 
 
+class SigningError(RuntimeError):
+    """Raised when detached signing of the exported file fails."""
+
+
 class ExportEngine:
     """Dispatches to registered Exporter plugins; signs and hashes the output."""
 
@@ -35,7 +39,7 @@ class ExportEngine:
         rmf: RiskManagementFile,
         fmt: str,
         output_path: Path,
-        sign_with: Path | None = None,
+        sign_with: str | None = None,
     ) -> Path:
         # 1. Inject mandatory disclosure
         from importlib.metadata import version as pkg_version
@@ -64,9 +68,10 @@ class ExportEngine:
         output_path.write_bytes(payload)
         output_path.chmod(0o600)
 
-        # 6. Optional Sigstore/PGP signing
+        # 6. Optional PGP detached signature with the caller-supplied key
         if sign_with:
             self._sign(output_path, sign_with)
+            rmf.signed_by = sign_with
 
         # 7. Emit audit log entry
         entry = await self._audit.record(
@@ -94,7 +99,25 @@ class ExportEngine:
         except jsonschema.ValidationError as e:
             raise SchemaViolationError(f"RMF schema violation: {e.message}") from e
 
-    def _sign(self, path: Path, key_path: Path) -> None:
+    def _sign(self, path: Path, signer: str) -> None:
+        """Create a detached, armored GPG signature with the caller-supplied key.
+
+        `signer` is a GPG key identifier (email, key id, or fingerprint) passed via
+        `--local-user`, so the signature carries the provenance the caller intended
+        rather than GPG's default key. Failures raise SigningError with a clean message.
+        """
+        import shutil
         import subprocess
 
-        subprocess.run(["gpg", "--detach-sign", "--armor", str(path)], check=True)
+        if shutil.which("gpg") is None:
+            raise SigningError("gpg is not installed; cannot sign. Install GnuPG or omit --sign.")
+        try:
+            subprocess.run(
+                ["gpg", "--detach-sign", "--armor", "--local-user", signer, str(path)],
+                check=True,
+                capture_output=True,
+                text=True,
+            )
+        except subprocess.CalledProcessError as exc:
+            detail = (exc.stderr or "").strip() or str(exc)
+            raise SigningError(f"gpg signing with key '{signer}' failed: {detail}") from exc
