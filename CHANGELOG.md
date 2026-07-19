@@ -10,6 +10,10 @@ Versioning: [Semantic Versioning](https://semver.org/)
 
 - `riskforge system classify <system-id> --confirm` records the provider's Article 6(2) Annex III self-classification and writes an audit entry. This was previously unreachable: no CLI command set the flag that validation gate G2 requires, so validation could not pass without hand-editing state files or using `--force`. An optional `--category` records or updates the Annex III category at the same time.
 
+### Changed
+
+- Reclassified the package `Development Status` from Production/Stable to Beta while a release-hardening pass is in progress ahead of v1.1.0.
+
 ### Fixed
 
 - Risk Management File export failed for any register that recorded a mitigation. The bundled `rmf.schema.json` omitted the `article_ref` and `nist_rmf_ref` fields that the `Mitigation` model serialises, so schema validation aborted the export in every format (JSON, PDF, Markdown). Added the two fields to `$defs/Mitigation` and a regression test that exports a mitigation-bearing register in all three formats.
