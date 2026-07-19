@@ -437,6 +437,31 @@ def test_export_populates_test_requirements_and_cross_references() -> None:
 
 
 @pytest.mark.enable_socket
+def test_export_records_audit_entry_hash_in_file() -> None:
+    """The exported RMF carries the hash of its rmf.exported audit entry; verify --file still holds."""
+    with tempfile.TemporaryDirectory() as tmp:
+        d = Path(tmp)
+        sid = _init_project(d, "AEH System")
+        _seed_register(d, sid)
+        out = d / "rmf.json"
+        exp = _run(
+            ["export", sid, "-f", "json", "-o", str(out), "--force", "--project-dir", str(d)]
+        )
+        assert exp.returncode == 0, f"export failed:\n{exp.output}"
+
+        rmf = json.loads(out.read_text())
+        assert rmf["audit_entry_hash"], "audit_entry_hash must be populated in the exported file"
+
+        entries = [
+            json.loads(line) for line in (d / ".riskforge" / "audit.jsonl").read_text().splitlines()
+        ]
+        exported = [e for e in entries if e["event"] == "rmf.exported"]
+        assert exported and exported[-1]["entry_hash"] == rmf["audit_entry_hash"]
+
+        assert _run(["verify", "--file", str(out), "--project-dir", str(d)]).returncode == 0
+
+
+@pytest.mark.enable_socket
 def test_risk_list_shows_seeded_items() -> None:
     """riskforge risk list must return seeded items."""
     with tempfile.TemporaryDirectory() as tmp:
