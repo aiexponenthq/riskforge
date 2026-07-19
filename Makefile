@@ -1,4 +1,4 @@
-.PHONY: dev-setup test lint pdf-preview schema-validate clean install
+.PHONY: dev-setup test test-fast lint format pdf-preview schema-validate eval eval-update clean install audit
 
 dev-setup:
 	pip install -e ".[dev]"
@@ -13,6 +13,12 @@ test:
 test-fast:
 	pytest -x -q
 
+eval:
+	python scripts/eval.py
+
+eval-update:
+	python scripts/eval.py --update
+
 lint:
 	ruff check src/ tests/
 	ruff format --check src/ tests/
@@ -25,7 +31,7 @@ schema-validate:
 	python -c "import json, jsonschema; schema=json.load(open('src/riskforge/_data/schemas/rmf.schema.json')); print('Schema valid:', schema.get('$$id'))"
 
 pdf-preview:
-	riskforge init --name "Test System" --version "1.0" --purpose "Test" --provider "AiExponent" --category essential_services --non-interactive 2>/dev/null || true
+	riskforge init --name "Test System" --sys-version "1.0" --purpose "Test" --provider "AiExponent" --category essential_services --non-interactive 2>/dev/null || true
 	@echo "Run riskforge assess then riskforge export --format pdf to preview"
 
 clean:
@@ -34,4 +40,4 @@ clean:
 	find . -type f -name "*.pyc" -delete 2>/dev/null || true
 
 audit:
-	pip-audit -r requirements.txt 2>/dev/null || pip-audit
+	pip-audit

@@ -1,0 +1,6 @@
+# init parameters for this example system (Annex III essential-services use case)
+name: "CreditFlow Scoring Engine"
+version: "2.1.0"
+purpose: "Automated credit scoring for retail loan and mortgage underwriting decisions."
+provider: "Acme Financial Services"
+category: essential_services

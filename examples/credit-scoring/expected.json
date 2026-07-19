@@ -1,0 +1,559 @@
+{
+  "audit_entry_hash": "<hash>",
+  "cross_references": [
+    {
+      "article_ref": "Art.9(2)(a)",
+      "iso42001_ref": "Clause A.7",
+      "nist_rmf_ref": "MEASURE 2.9",
+      "risk_item_ids": [
+        "<uuid>",
+        "<uuid>",
+        "<uuid>",
+        "<uuid>"
+      ]
+    },
+    {
+      "article_ref": "Art.9(9)",
+      "iso42001_ref": "Clause A.7",
+      "nist_rmf_ref": "MEASURE 2.9",
+      "risk_item_ids": [
+        "<uuid>"
+      ]
+    },
+    {
+      "article_ref": "Art.10(2)(f)",
+      "iso42001_ref": "Clause A.7",
+      "nist_rmf_ref": "MEASURE 2.9",
+      "risk_item_ids": [
+        "<uuid>",
+        "<uuid>"
+      ]
+    },
+    {
+      "article_ref": "Art.13",
+      "iso42001_ref": "Clause A.6",
+      "nist_rmf_ref": "GOVERN 1.7",
+      "risk_item_ids": [
+        "<uuid>"
+      ]
+    },
+    {
+      "article_ref": "Art.14(1)",
+      "iso42001_ref": "Clause 6.1",
+      "nist_rmf_ref": "MAP 1.5",
+      "risk_item_ids": [
+        "<uuid>"
+      ]
+    },
+    {
+      "article_ref": "Art.10(5)",
+      "iso42001_ref": "Clause A.8",
+      "nist_rmf_ref": "GOVERN 1.6",
+      "risk_item_ids": [
+        "<uuid>"
+      ]
+    },
+    {
+      "article_ref": "Art.13(1)",
+      "iso42001_ref": "Clause A.6",
+      "nist_rmf_ref": "GOVERN 1.7",
+      "risk_item_ids": [
+        "<uuid>"
+      ]
+    },
+    {
+      "article_ref": "Art.14(4)(e)",
+      "iso42001_ref": "Clause A.9",
+      "nist_rmf_ref": "MANAGE 1.1",
+      "risk_item_ids": [
+        "<uuid>"
+      ]
+    },
+    {
+      "article_ref": "Art.9(7)",
+      "iso42001_ref": "Clause A.9",
+      "nist_rmf_ref": "MEASURE 2.5",
+      "risk_item_ids": [
+        "<uuid>"
+      ]
+    },
+    {
+      "article_ref": "Art.15",
+      "iso42001_ref": "Clause A.9",
+      "nist_rmf_ref": "MEASURE 2.5",
+      "risk_item_ids": [
+        "<uuid>"
+      ]
+    },
+    {
+      "article_ref": "Art.10(2)",
+      "iso42001_ref": "Clause A.8",
+      "nist_rmf_ref": "GOVERN 1.7",
+      "risk_item_ids": [
+        "<uuid>"
+      ]
+    },
+    {
+      "article_ref": "Art.10(3)",
+      "iso42001_ref": "Clause A.8",
+      "nist_rmf_ref": "GOVERN 1.7",
+      "risk_item_ids": [
+        "<uuid>"
+      ]
+    }
+  ],
+  "disclosure": "This document was produced using RiskForge v1.0.0, question bank version 1.0.0. It represents the team's documented risk assessment and has not been reviewed by a qualified legal professional. It does not constitute legal advice under the EU AI Act or any other regulation.",
+  "generated_at": "<timestamp>",
+  "id": "<uuid>",
+  "register": {
+    "assessment_date": "<timestamp>",
+    "assessor_name": "Example Assessor",
+    "assessor_role": "AI Governance Lead",
+    "id": "<uuid>",
+    "items": [
+      {
+        "acceptance_rationale": "Residual accepted for the example fixture.",
+        "accepted": true,
+        "article_refs": [
+          "Art.9(2)(a)",
+          "Art.9(9)",
+          "Art.10(2)(f)"
+        ],
+        "description": "Credit scoring models trained on historical data may encode systemic biases against protected groups (age, gender, ethnicity). Article 9(9) requires consideration of impacts on vulnerable groups.",
+        "dimension": "discrimination",
+        "id": "<uuid>",
+        "identified_at": "<timestamp>",
+        "iso42001_ref": "Clause A.7",
+        "iso42001_refs": [],
+        "knowledge_gap": false,
+        "knowledge_gap_reason": "",
+        "likelihood": 3,
+        "mitigations": [],
+        "nist_rmf_ref": "MEASURE 2.9",
+        "nist_rmf_refs": [],
+        "notes": "",
+        "regulatory_status": "settled",
+        "residual_likelihood": 3,
+        "residual_risk_band": "high",
+        "residual_risk_score": 12,
+        "residual_severity": 4,
+        "risk_band": "high",
+        "risk_score": 12,
+        "severity": 4,
+        "source": "pattern",
+        "source_ref": "",
+        "tags": [
+          "pattern:CREDIT_SCORING_BIAS"
+        ],
+        "title": "Demographic bias in credit scoring outputs"
+      },
+      {
+        "acceptance_rationale": "",
+        "accepted": false,
+        "article_refs": [
+          "Art.13"
+        ],
+        "description": "Automated credit decisions must be explainable to affected individuals under GDPR Article 22. The system may not currently provide this.",
+        "dimension": "transparency",
+        "id": "<uuid>",
+        "identified_at": "<timestamp>",
+        "iso42001_ref": "Clause A.6",
+        "iso42001_refs": [],
+        "knowledge_gap": false,
+        "knowledge_gap_reason": "",
+        "likelihood": 3,
+        "mitigations": [],
+        "nist_rmf_ref": "GOVERN 1.7",
+        "nist_rmf_refs": [],
+        "notes": "",
+        "regulatory_status": "settled",
+        "residual_likelihood": 3,
+        "residual_risk_band": "medium",
+        "residual_risk_score": 9,
+        "residual_severity": 3,
+        "risk_band": "medium",
+        "risk_score": 9,
+        "severity": 3,
+        "source": "pattern",
+        "source_ref": "",
+        "tags": [
+          "pattern:CREDIT_SCORING_BIAS"
+        ],
+        "title": "Lack of explanation for credit decisions"
+      },
+      {
+        "acceptance_rationale": "",
+        "accepted": false,
+        "article_refs": [
+          "Art.9(2)(a)",
+          "Art.14(1)"
+        ],
+        "description": "Consider decisions about medication dosing, surgical planning, vehicle operation, equipment control, or emergency dispatch.",
+        "dimension": "health_safety",
+        "id": "<uuid>",
+        "identified_at": "<timestamp>",
+        "iso42001_ref": "Clause 6.1",
+        "iso42001_refs": [],
+        "knowledge_gap": false,
+        "knowledge_gap_reason": "",
+        "likelihood": 1,
+        "mitigations": [],
+        "nist_rmf_ref": "MAP 1.5",
+        "nist_rmf_refs": [],
+        "notes": "",
+        "regulatory_status": "settled",
+        "residual_likelihood": 1,
+        "residual_risk_band": "low",
+        "residual_risk_score": 3,
+        "residual_severity": 3,
+        "risk_band": "low",
+        "risk_score": 3,
+        "severity": 3,
+        "source": "question_bank",
+        "source_ref": "",
+        "tags": [
+          "HS-001"
+        ],
+        "title": "Could the system's outputs directly influence a clinical, safety, or physical decision without mandatory human review?"
+      },
+      {
+        "acceptance_rationale": "Residual accepted for the example fixture.",
+        "accepted": true,
+        "article_refs": [
+          "Art.9(2)(a)"
+        ],
+        "description": "Article 9(2)(a) requires identification of known and foreseeable risks to fundamental rights. A FRIA is the standard mechanism for this.",
+        "dimension": "fundamental_rights",
+        "id": "<uuid>",
+        "identified_at": "<timestamp>",
+        "iso42001_ref": "Clause 6.1",
+        "iso42001_refs": [],
+        "knowledge_gap": false,
+        "knowledge_gap_reason": "",
+        "likelihood": 3,
+        "mitigations": [],
+        "nist_rmf_ref": "GOVERN 1.1",
+        "nist_rmf_refs": [],
+        "notes": "",
+        "regulatory_status": "settled",
+        "residual_likelihood": 3,
+        "residual_risk_band": "high",
+        "residual_risk_score": 12,
+        "residual_severity": 4,
+        "risk_band": "high",
+        "risk_score": 12,
+        "severity": 4,
+        "source": "question_bank",
+        "source_ref": "",
+        "tags": [
+          "FR-001"
+        ],
+        "title": "Has a fundamental rights impact assessment (FRIA) been conducted prior to deployment?"
+      },
+      {
+        "acceptance_rationale": "Residual accepted for the example fixture.",
+        "accepted": true,
+        "article_refs": [
+          "Art.10(2)(f)",
+          "Art.9(2)(a)"
+        ],
+        "description": "Biased training data produces biased outputs. Article 10(2)(f) requires data governance measures to address biases.",
+        "dimension": "discrimination",
+        "id": "<uuid>",
+        "identified_at": "<timestamp>",
+        "iso42001_ref": "Clause A.7",
+        "iso42001_refs": [],
+        "knowledge_gap": false,
+        "knowledge_gap_reason": "",
+        "likelihood": 4,
+        "mitigations": [],
+        "nist_rmf_ref": "MEASURE 2.9",
+        "nist_rmf_refs": [],
+        "notes": "",
+        "regulatory_status": "settled",
+        "residual_likelihood": 4,
+        "residual_risk_band": "critical",
+        "residual_risk_score": 20,
+        "residual_severity": 5,
+        "risk_band": "critical",
+        "risk_score": 20,
+        "severity": 5,
+        "source": "question_bank",
+        "source_ref": "",
+        "tags": [
+          "DI-001"
+        ],
+        "title": "Has the training dataset been audited for representation imbalances across protected characteristics (gender, ethnicity,"
+      },
+      {
+        "acceptance_rationale": "Residual accepted for the example fixture.",
+        "accepted": true,
+        "article_refs": [
+          "Art.10(5)"
+        ],
+        "description": "Processing of special category data triggers additional obligations under GDPR Article 9 and EU AI Act Article 10(5).",
+        "dimension": "privacy",
+        "id": "<uuid>",
+        "identified_at": "<timestamp>",
+        "iso42001_ref": "Clause A.8",
+        "iso42001_refs": [],
+        "knowledge_gap": false,
+        "knowledge_gap_reason": "",
+        "likelihood": 3,
+        "mitigations": [],
+        "nist_rmf_ref": "GOVERN 1.6",
+        "nist_rmf_refs": [],
+        "notes": "",
+        "regulatory_status": "settled",
+        "residual_likelihood": 3,
+        "residual_risk_band": "high",
+        "residual_risk_score": 12,
+        "residual_severity": 4,
+        "risk_band": "high",
+        "risk_score": 12,
+        "severity": 4,
+        "source": "question_bank",
+        "source_ref": "",
+        "tags": [
+          "PR-001"
+        ],
+        "title": "Does the system process personal data or special category data (health, biometric, ethnicity, religion)?"
+      },
+      {
+        "acceptance_rationale": "",
+        "accepted": false,
+        "article_refs": [
+          "Art.13(1)"
+        ],
+        "description": "Article 13 requires providers to ensure a sufficient level of transparency to enable users to interpret the system's output. Notification is a baseline.",
+        "dimension": "transparency",
+        "id": "<uuid>",
+        "identified_at": "<timestamp>",
+        "iso42001_ref": "Clause A.6",
+        "iso42001_refs": [],
+        "knowledge_gap": false,
+        "knowledge_gap_reason": "",
+        "likelihood": 3,
+        "mitigations": [],
+        "nist_rmf_ref": "GOVERN 1.7",
+        "nist_rmf_refs": [],
+        "notes": "",
+        "regulatory_status": "settled",
+        "residual_likelihood": 3,
+        "residual_risk_band": "medium",
+        "residual_risk_score": 9,
+        "residual_severity": 3,
+        "risk_band": "medium",
+        "risk_score": 9,
+        "severity": 3,
+        "source": "question_bank",
+        "source_ref": "",
+        "tags": [
+          "TR-001"
+        ],
+        "title": "Are users notified that they are interacting with or being assessed by an AI system?"
+      },
+      {
+        "acceptance_rationale": "",
+        "accepted": false,
+        "article_refs": [
+          "Art.14(4)(e)"
+        ],
+        "description": "Article 14(4)(e) requires the ability to intervene on or interrupt AI system operation. This must be technically implemented, not just policy-stated.",
+        "dimension": "human_oversight",
+        "id": "<uuid>",
+        "identified_at": "<timestamp>",
+        "iso42001_ref": "Clause A.9",
+        "iso42001_refs": [],
+        "knowledge_gap": false,
+        "knowledge_gap_reason": "",
+        "likelihood": 2,
+        "mitigations": [],
+        "nist_rmf_ref": "MANAGE 1.1",
+        "nist_rmf_refs": [],
+        "notes": "",
+        "regulatory_status": "settled",
+        "residual_likelihood": 2,
+        "residual_risk_band": "medium",
+        "residual_risk_score": 8,
+        "residual_severity": 4,
+        "risk_band": "medium",
+        "risk_score": 8,
+        "severity": 4,
+        "source": "question_bank",
+        "source_ref": "",
+        "tags": [
+          "HO-001"
+        ],
+        "title": "Can a human operator override or stop the AI system's output in real time without significant technical barriers?"
+      },
+      {
+        "acceptance_rationale": "Residual accepted for the example fixture.",
+        "accepted": true,
+        "article_refs": [
+          "Art.9(7)",
+          "Art.15"
+        ],
+        "description": "Article 9(7) and Article 15 require testing of AI systems against the intended purpose and reasonably foreseeable misuse.",
+        "dimension": "robustness",
+        "id": "<uuid>",
+        "identified_at": "<timestamp>",
+        "iso42001_ref": "Clause A.9",
+        "iso42001_refs": [],
+        "knowledge_gap": false,
+        "knowledge_gap_reason": "",
+        "likelihood": 3,
+        "mitigations": [],
+        "nist_rmf_ref": "MEASURE 2.5",
+        "nist_rmf_refs": [],
+        "notes": "",
+        "regulatory_status": "settled",
+        "residual_likelihood": 3,
+        "residual_risk_band": "high",
+        "residual_risk_score": 12,
+        "residual_severity": 4,
+        "risk_band": "high",
+        "risk_score": 12,
+        "severity": 4,
+        "source": "question_bank",
+        "source_ref": "",
+        "tags": [
+          "RO-001"
+        ],
+        "title": "Has the system been tested against out-of-distribution inputs, edge cases, and adversarial perturbations?"
+      },
+      {
+        "acceptance_rationale": "",
+        "accepted": false,
+        "article_refs": [
+          "Art.10(2)",
+          "Art.10(3)"
+        ],
+        "description": "Article 10(2) requires data governance practices including documentation of dataset provenance. TraceForge can automate this.",
+        "dimension": "data_governance",
+        "id": "<uuid>",
+        "identified_at": "<timestamp>",
+        "iso42001_ref": "Clause A.8",
+        "iso42001_refs": [],
+        "knowledge_gap": true,
+        "knowledge_gap_reason": "",
+        "likelihood": 2,
+        "mitigations": [],
+        "nist_rmf_ref": "GOVERN 1.7",
+        "nist_rmf_refs": [],
+        "notes": "",
+        "regulatory_status": "settled",
+        "residual_likelihood": 2,
+        "residual_risk_band": "medium",
+        "residual_risk_score": 6,
+        "residual_severity": 3,
+        "risk_band": "medium",
+        "risk_score": 6,
+        "severity": 3,
+        "source": "question_bank",
+        "source_ref": "",
+        "tags": [
+          "DG-001"
+        ],
+        "title": "Is the provenance of all training, validation, and test datasets documented (source, collection date, license, version)?"
+      }
+    ],
+    "question_bank_version": "1.0.0",
+    "review_date": "<timestamp>",
+    "risk_appetite_threshold": 9,
+    "schema_version": "1.0.0",
+    "system": {
+      "annex_iii_category": "essential_services",
+      "annex_iii_self_classification_documented": true,
+      "created_at": "<timestamp>",
+      "deployment_context": "",
+      "id": "<uuid>",
+      "inputs": [],
+      "intended_users": [],
+      "name": "CreditFlow Scoring Engine",
+      "outputs": [],
+      "provider_contact": "",
+      "provider_name": "Acme Financial Services",
+      "purpose": "Automated credit scoring for retail loan and mortgage underwriting decisions.",
+      "schema_version": "1.0.0",
+      "version": "2.1.0"
+    }
+  },
+  "rmf_schema_version": "1.0.0",
+  "sha256_hash": "<hash>",
+  "signed_by": "",
+  "test_requirements": [
+    {
+      "article_ref": "Art.9(7)",
+      "description": "Validate 'Demographic bias in credit scoring outputs' via demographic_parity measurement. Target: <= 0.10.",
+      "id": "<uuid>",
+      "metric_type": "demographic_parity",
+      "nist_rmf_ref": "",
+      "risk_item_id": "<uuid>",
+      "threshold_range": "<= 0.10"
+    },
+    {
+      "article_ref": "Art.13",
+      "description": "Validate 'Lack of explanation for credit decisions' via explanation_coverage measurement. Target: >= 0.90.",
+      "id": "<uuid>",
+      "metric_type": "explanation_coverage",
+      "nist_rmf_ref": "",
+      "risk_item_id": "<uuid>",
+      "threshold_range": ">= 0.90"
+    },
+    {
+      "article_ref": "Art.9(2)(a)",
+      "description": "Validate 'Has a fundamental rights impact assessment (FRIA) been conducted prior to deployment?' via fundamental_rights_impact_score measurement. Target: = 0.",
+      "id": "<uuid>",
+      "metric_type": "fundamental_rights_impact_score",
+      "nist_rmf_ref": "",
+      "risk_item_id": "<uuid>",
+      "threshold_range": "= 0"
+    },
+    {
+      "article_ref": "Art.9(7)",
+      "description": "Validate 'Has the training dataset been audited for representation imbalances across protected characteristics (gender, ethnicity,' via demographic_parity measurement. Target: <= 0.10.",
+      "id": "<uuid>",
+      "metric_type": "demographic_parity",
+      "nist_rmf_ref": "",
+      "risk_item_id": "<uuid>",
+      "threshold_range": "<= 0.10"
+    },
+    {
+      "article_ref": "Art.9(7)",
+      "description": "Validate 'Does the system process personal data or special category data (health, biometric, ethnicity, religion)?' via pii_leakage_rate measurement. Target: = 0.00.",
+      "id": "<uuid>",
+      "metric_type": "pii_leakage_rate",
+      "nist_rmf_ref": "",
+      "risk_item_id": "<uuid>",
+      "threshold_range": "= 0.00"
+    },
+    {
+      "article_ref": "Art.13",
+      "description": "Validate 'Are users notified that they are interacting with or being assessed by an AI system?' via explanation_coverage measurement. Target: >= 0.90.",
+      "id": "<uuid>",
+      "metric_type": "explanation_coverage",
+      "nist_rmf_ref": "",
+      "risk_item_id": "<uuid>",
+      "threshold_range": ">= 0.90"
+    },
+    {
+      "article_ref": "Art.9(7)",
+      "description": "Validate 'Has the system been tested against out-of-distribution inputs, edge cases, and adversarial perturbations?' via faithfulness measurement. Target: >= 0.85.",
+      "id": "<uuid>",
+      "metric_type": "faithfulness",
+      "nist_rmf_ref": "",
+      "risk_item_id": "<uuid>",
+      "threshold_range": ">= 0.85"
+    },
+    {
+      "article_ref": "Art.10",
+      "description": "Validate 'Is the provenance of all training, validation, and test datasets documented (source, collection date, license, version)?' via data_quality_score measurement. Target: >= 0.95.",
+      "id": "<uuid>",
+      "metric_type": "data_quality_score",
+      "nist_rmf_ref": "",
+      "risk_item_id": "<uuid>",
+      "threshold_range": ">= 0.95"
+    }
+  ]
+}
