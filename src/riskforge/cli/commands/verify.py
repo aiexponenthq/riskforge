@@ -69,8 +69,12 @@ def _verify_rmf_file(file: Path) -> None:
         console.print("[red]✗[/red] RMF has no sha256_hash field to verify.")
         raise typer.Exit(2)
 
+    # Blank the integrity/provenance fields the exporter excludes from the digest
+    # (see ExportEngine.export): sha256_hash, audit_entry_hash, signed_by.
     recompute_source = dict(data)
     recompute_source["sha256_hash"] = ""
+    recompute_source["audit_entry_hash"] = ""
+    recompute_source["signed_by"] = ""
     canonical = json.dumps(recompute_source, sort_keys=True, separators=(",", ":"))
     computed = hashlib.sha256(canonical.encode("utf-8")).hexdigest()
 

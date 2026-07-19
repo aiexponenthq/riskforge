@@ -49,31 +49,25 @@ class ExportEngine:
             qb_version=rmf.register.question_bank_version,
         )
 
-        # 2. Compute SHA-256 over canonical JSON (sha256_hash field = "")
-        # by_alias=True ensures risk_register serialises as "register" per the schema
+        # 2. Self-verifying SHA-256 over the document CONTENT. The integrity and
+        # provenance fields are blanked first: sha256_hash cannot cover itself;
+        # audit_entry_hash is derived from this hash (its audit entry carries the
+        # sha256, so it would be circular); signed_by is provenance carried by the
+        # detached signature. `verify --file` blanks the same three before recomputing.
+        # by_alias=True ensures risk_register serialises as "register" per the schema.
         rmf.sha256_hash = ""
+        rmf.audit_entry_hash = ""
+        rmf.signed_by = ""
         canonical = json.dumps(
             rmf.model_dump(mode="json", by_alias=True), sort_keys=True, separators=(",", ":")
         )
         rmf.sha256_hash = hashlib.sha256(canonical.encode("utf-8")).hexdigest()
 
-        # 3. Validate against rmf.schema.json (raises SchemaViolationError on failure)
+        # 3. Validate against rmf.schema.json before recording anything.
         self._validate_schema(rmf)
 
-        # 4. Dispatch to exporter plugin
-        exporter = self._registry.get_exporter(fmt)
-        payload: bytes = exporter.render(rmf)
-
-        # 5. Write to output path (chmod 600)
-        output_path.write_bytes(payload)
-        output_path.chmod(0o600)
-
-        # 6. Optional PGP detached signature with the caller-supplied key
-        if sign_with:
-            self._sign(output_path, sign_with)
-            rmf.signed_by = sign_with
-
-        # 7. Emit audit log entry
+        # 4. Link the export to the append-only audit chain, then carry the entry
+        # hash back on the RMF so the written artefact references its audit record.
         entry = await self._audit.record(
             "rmf.exported",
             system_id=str(rmf.register.system.id),
@@ -84,6 +78,16 @@ class ExportEngine:
             },
         )
         rmf.audit_entry_hash = entry.entry_hash
+        rmf.signed_by = sign_with or ""
+
+        # 5. Render + write the fully-populated document (chmod 600)
+        exporter = self._registry.get_exporter(fmt)
+        output_path.write_bytes(exporter.render(rmf))
+        output_path.chmod(0o600)
+
+        # 6. Optional PGP detached signature over the written file
+        if sign_with:
+            self._sign(output_path, sign_with)
 
         return output_path
 
