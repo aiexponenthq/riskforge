@@ -129,14 +129,9 @@ source = ["riskforge"]
 branch = true
 
 [tool.coverage.report]
-# v1.0 floor set at 35%, calibrated to the unit-test-only CI matrix. CI runs
-# `pytest --cov --ignore=tests/integration/` (see .github/workflows/ci.yml line 57),
-# which exercises engine/, models/, storage/, the boundary tests, and the contract
-# tests but does NOT run the integration tests that exercise the CLI commands or
-# server modules. Locally with integration tests included, coverage rises to ~59%.
-#
-# Raising path: 24 → 35 (this release) → 55 (v1.0.1, after `tests/integration/`
-# is wired into CI) → 80 (v1.1, after server module unit tests). This staged
-# approach prevents silent regression at each milestone without blocking GA on
-# CI infrastructure work.
-fail_under = 55
+# CI runs the FULL test suite (unit + integration + contract + boundary) via
+# `pytest --cov` in .github/workflows/ci.yml, so the measured number is the
+# full-suite coverage (~65% as of this pass). The floor is set with a small margin
+# below that. The main remaining gap is the optional, experimental `riskforge.server`
+# package; raise the floor further once it is tested (or excluded from the source).
+fail_under = 60
