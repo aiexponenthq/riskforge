@@ -6,6 +6,11 @@ Versioning: [Semantic Versioning](https://semver.org/)
 
 ## [Unreleased]
 
+## [1.1.0] - 2026-07-19
+
+Release-hardening pass: closes the correctness, completeness, documentation, and
+performance gaps found in the 2026-07 evaluation. Reclassified to Production/Stable.
+
 ### Added
 
 - `riskforge system classify <system-id> --confirm` records the provider's Article 6(2) Annex III self-classification and writes an audit entry. This was previously unreachable: no CLI command set the flag that validation gate G2 requires, so validation could not pass without hand-editing state files or using `--force`. An optional `--category` records or updates the Annex III category at the same time.
@@ -27,6 +32,7 @@ Versioning: [Semantic Versioning](https://semver.org/)
 ### Fixed
 
 - The hash-chained audit append was O(n) per write (it re-verified the whole chain and scanned it twice more, for the last hash and next sequence), so building an N-entry chain was O(n^2) and a large register stalled for minutes. Each append now chains from the tail (one entry read plus a tail-integrity check), making a build O(n): 1000 entries went from a multi-second stall to about 0.4s (see `benchmarks/`). Full-chain verification stays available via `riskforge verify`, and a new test checks that a tampered tail is refused at append time.
+- The package `__version__` was hardcoded at `0.1.4` while the distribution was `1.0.0`. It now derives from the installed distribution metadata, so it cannot drift again, with a test asserting the two agree.
 - Exported Risk Management Files always carried empty `test_requirements` and `cross_references`, even after running `riskforge tests generate`. Export now derives both from the register (Article 9 test requirements per high-scoring or knowledge-gap risk item, and cross-references clustered by article reference), so the RMF is complete. The schema's `TestRequirement` definition gained the `nist_rmf_ref` field the model emits.
 - The `riskforge risk` group help advertised `add`, `edit`, and `score` subcommands that do not ship; it now lists only the actual commands (list, accept, mitigate).
 - `riskforge serve` printed an uninterpolated `http://{host}:{port}/docs` docs link (a missing f-string), and the `riskforge tests` group help advertised a `list` subcommand that does not ship. Both corrected.
