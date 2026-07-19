@@ -57,11 +57,16 @@ def cmd(
             )
             raise typer.Exit(1)
 
-    # Build the RMF artefact
+    # Build the RMF artefact, deriving test requirements and cross-references from
+    # the register so they land in the exported file (both are deterministic).
     import datetime
+
+    from riskforge.engine.tests import TestDerivationEngine
 
     rmf = RiskManagementFile(
         register=register,
+        test_requirements=TestDerivationEngine().derive(register.items),
+        cross_references=_build_cross_references(register.items),
         generated_at=datetime.datetime.now(datetime.UTC),
     )
 
@@ -87,3 +92,37 @@ def cmd(
 
     console.print(f"[green]✓[/green] Exported: [bold]{result_path}[/bold]")
     console.print(f"  SHA-256: [dim]{rmf.sha256_hash}[/dim]")
+
+
+def _build_cross_references(items: list) -> list:
+    """Cluster risk items by Article 9 reference for the RMF cross_references block.
+
+    Each distinct article ref becomes one cluster listing the risk-item ids that
+    carry it, with the first associated NIST and ISO reference for the cluster.
+    """
+    from collections import OrderedDict
+
+    from riskforge.models.rmf import CrossReference
+
+    clusters: OrderedDict[str, dict] = OrderedDict()
+    for item in items:
+        for art in item.article_refs:
+            cluster = clusters.setdefault(art, {"ids": [], "nist": "", "iso": ""})
+            cluster["ids"].append(item.id)
+            if not cluster["nist"]:
+                cluster["nist"] = (
+                    item.nist_rmf_refs[0] if item.nist_rmf_refs else ""
+                ) or item.nist_rmf_ref
+            if not cluster["iso"]:
+                cluster["iso"] = (
+                    item.iso42001_refs[0] if item.iso42001_refs else ""
+                ) or item.iso42001_ref
+    return [
+        CrossReference(
+            article_ref=art,
+            risk_item_ids=cluster["ids"],
+            nist_rmf_ref=cluster["nist"],
+            iso42001_ref=cluster["iso"],
+        )
+        for art, cluster in clusters.items()
+    ]

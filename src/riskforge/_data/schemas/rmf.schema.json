@@ -168,7 +168,8 @@
         "description": { "type": "string" },
         "metric_type": { "type": "string" },
         "threshold_range": { "type": "string" },
-        "article_ref": { "type": "string" }
+        "article_ref": { "type": "string" },
+        "nist_rmf_ref": { "type": "string", "default": "" }
       },
       "additionalProperties": false
     },

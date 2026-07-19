@@ -394,6 +394,49 @@ def test_assess_noninteractive_missing_file_exits_1() -> None:
 
 
 @pytest.mark.enable_socket
+def test_export_populates_test_requirements_and_cross_references() -> None:
+    """Exported RMF carries derived Article 9 test requirements and cross-references."""
+    import riskforge._data as _data_pkg
+    from riskforge.engine.assess import AssessEngine
+    from riskforge.models.risk import RiskDimension
+
+    with tempfile.TemporaryDirectory() as tmp:
+        d = Path(tmp)
+        sid = _init_project(d, "RMF Fields System")
+        priv_q = AssessEngine(Path(_data_pkg.__file__).parent).load_questions(
+            RiskDimension.privacy
+        )[0]["id"]
+        (d / "answers.yaml").write_text(
+            f"add_patterns: false\nanswers:\n  {priv_q}: {{ applies: yes, likelihood: 4, severity: 5 }}\n"
+        )
+        assert (
+            _run(
+                [
+                    "assess",
+                    sid,
+                    "-a",
+                    "A",
+                    "-r",
+                    "B",
+                    "--answers",
+                    str(d / "answers.yaml"),
+                    "-d",
+                    str(d),
+                ]
+            ).returncode
+            == 0
+        )
+        out = d / "rmf.json"
+        exp = _run(
+            ["export", sid, "-f", "json", "-o", str(out), "--force", "--project-dir", str(d)]
+        )
+        assert exp.returncode == 0, f"export failed:\n{exp.output}"
+        rmf = json.loads(out.read_text())
+        assert len(rmf["test_requirements"]) >= 1, "test_requirements should be derived at export"
+        assert len(rmf["cross_references"]) >= 1, "cross_references should be derived at export"
+
+
+@pytest.mark.enable_socket
 def test_risk_list_shows_seeded_items() -> None:
     """riskforge risk list must return seeded items."""
     with tempfile.TemporaryDirectory() as tmp:
