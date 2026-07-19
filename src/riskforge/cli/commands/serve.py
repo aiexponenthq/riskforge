@@ -20,12 +20,26 @@ def cmd(
 ) -> None:
     """Start the RiskForge REST API server (requires pip install riskforge[server]).
 
-    The server is not imported by the CLI at startup — this lazy import
-    preserves the CLI's zero-server-dependency guarantee.
+    EXPERIMENTAL. The server is optional, not security-hardened, and not part of the
+    flagship test suite. The CLI never imports it at startup, which preserves the
+    zero-server-dependency guarantee.
     """
-    if allow_external and host == "0.0.0.0":  # noqa: S104  # nosec B104
+    console.print(
+        "[yellow]⚠ EXPERIMENTAL:[/yellow] the RiskForge API server is not security-hardened "
+        "(minimal auth, no rate limiting) and is not covered by the flagship tests. "
+        "Do not expose it to untrusted networks."
+    )
+
+    is_external = host not in ("127.0.0.1", "localhost", "::1")
+    if is_external and not allow_external:
         console.print(
-            "[yellow]WARNING:[/yellow] Binding to 0.0.0.0 exposes the API externally. "
+            f"[red]✗[/red] Refusing to bind to non-localhost host '{host}' without "
+            "--allow-external. Pass --allow-external only on a trusted network."
+        )
+        raise typer.Exit(1)
+    if is_external:
+        console.print(
+            "[yellow]WARNING:[/yellow] binding to a non-localhost host exposes the API. "
             "Ensure firewall rules and authentication are configured."
         )
 
@@ -39,7 +53,7 @@ def cmd(
         raise typer.Exit(1)
 
     console.print(f"Starting RiskForge API server on [bold]http://{host}:{port}[/bold]")
-    console.print("Docs: [link]http://{host}:{port}/docs[/link]")
+    console.print(f"Docs: [link]http://{host}:{port}/docs[/link]")
 
     uvicorn.run(
         "riskforge.server.app:app",
