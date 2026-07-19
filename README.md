@@ -1,5 +1,5 @@
 <p align="center">
-  <a href="https://aiexponent.com"><img src=".github/brand/logo-full-light.png" alt="AiExponent — Building AI that deserves to be trusted" width="560"></a>
+  <a href="https://aiexponent.com"><img src="https://raw.githubusercontent.com/aiexponenthq/riskforge/main/.github/brand/logo-full-light.png" alt="AI Exponent" width="560"></a>
 </p>
 
 <h1 align="center">RiskForge</h1>
@@ -18,7 +18,7 @@
 
 **RiskForge** is an open-source CLI that turns EU AI Act Article 9 compliance from a consultant invoice into a 30-minute developer workflow.
 
-Answer 37 guided questions across 8 EU AI Act risk dimensions. RiskForge produces a SHA-256-signed Risk Management File (JSON + PDF) suitable for inclusion in your Annex IV technical documentation pack — ready for your legal team and your downstream compliance toolchain. (Not a substitute for notified-body conformity assessment.)
+Answer 37 guided questions across 8 EU AI Act risk dimensions. RiskForge produces a tamper-evident Risk Management File (JSON, PDF, or Markdown) carrying a SHA-256 self-verifying digest, suitable for inclusion in your Annex IV technical documentation pack and ready for your legal team and downstream compliance toolchain. (Not a substitute for notified-body conformity assessment.)
 
 Built by [AI Exponent LLC](https://aiexponent.com). Apache 2.0. Runs entirely offline after `pip install`.
 
@@ -29,6 +29,8 @@ Built by [AI Exponent LLC](https://aiexponent.com). Apache 2.0. Runs entirely of
 ```bash
 pip install riskforge
 ```
+
+> **PDF export** additionally needs the Pango, cairo, and GDK-PixBuf system libraries (used by WeasyPrint). On Debian/Ubuntu: `apt-get install libpango-1.0-0 libpangocairo-1.0-0 libgdk-pixbuf2.0-0`; on macOS: `brew install pango`. JSON and Markdown export need nothing beyond `pip install`.
 
 ```bash
 # 1. Register your AI system
@@ -41,22 +43,39 @@ riskforge init \
 ```
 
 ```bash
-# 2. Run the guided 8-dimension risk assessment (~30 minutes)
-riskforge assess <system-id> \
-  --assessor-name "Alice Chen" \
-  --assessor-role "AI Governance Lead"
+# 2. Record your Article 6(2) Annex III self-classification (required before export)
+riskforge system classify <system-id> --confirm
 ```
 
 ```bash
-# 3. (Optional) Derive Article 9(6)–(8) test requirements per identified risk
+# 3. Run the guided 8-dimension risk assessment (~30 minutes of thinking)
+riskforge assess <system-id> \
+  --assessor-name "Alice Chen" \
+  --assessor-role "AI Governance Lead"
+
+# For CI or reproducible fixtures, run it non-interactively from a YAML answers file:
+#   riskforge assess <system-id> -a "Alice Chen" -r "AI Governance Lead" --answers answers.yaml
+```
+
+```bash
+# 4. (Optional) Record mitigations and accept residual risk
+riskforge risk mitigate <system-id> <risk-id> \
+  -m "Remove postcode feature; add demographic parity monitoring" \
+  -c preventive --owner "ML Platform" --residual-likelihood 2 --residual-severity 3
+riskforge risk accept <system-id> <risk-id> --rationale "Residual within appetite after controls."
+
+# 5. (Optional) Derive Article 9(6)-(8) test requirements per open or knowledge-gap risk
 riskforge tests generate <system-id>
 
-# 4. Check completeness before export
+# 6. Check completeness before export (exit 1 if a FAIL gate is unmet)
 riskforge validate <system-id>
 
-# 5. Export your Article 9 Risk Management File
+# 7. Export your Article 9 Risk Management File
 riskforge export <system-id> --format pdf --output rmf.pdf
 riskforge export <system-id> --format json --output rmf.json
+
+# 8. Verify integrity anytime (exit 2 if the file was tampered)
+riskforge verify --file rmf.json
 ```
 
 ---
@@ -91,7 +110,7 @@ graph TD
 
     CLI -->|"calls engine functions"| Engine
     Engine -->|"reads/writes via StorageBackend ABC"| Storage
-    Engine -->|"adapter pattern — no hard imports"| Adapters
+    Engine -->|"adapter pattern, no hard imports"| Adapters
 
     style CLI fill:#1e3a5f,color:#fff
     style Engine fill:#1e3a5f,color:#fff
@@ -103,22 +122,23 @@ graph TD
 
 ```
 your-project/
-├── riskforge.yaml              ← project manifest
-├── .riskforge/
-│   ├── audit.jsonl             ← append-only hash-chained audit log
-│   └── .nodelete               ← deletion sentinel
-└── systems/<system-id>/
-    ├── system.yaml
-    ├── register.yaml
-    └── exports/
-        └── rmf-*.json
+├── riskforge.yaml                     project manifest (chmod 600)
+├── .riskforge/                        (chmod 700)
+│   ├── audit.jsonl                    append-only hash-chained audit log
+│   ├── audit.lock                     serialises audit appends
+│   ├── .nodelete                      deletion sentinel
+│   └── systems/<system-id>/
+│       ├── system.yaml
+│       ├── register.yaml
+│       └── mitigations.yaml
+└── rmf-<id>-<export>.json             exports land where --output says (default: here)
 ```
 
-Plain YAML + JSONL — readable by regulators without RiskForge installed, diff-able in GitHub PRs.
+Plain YAML plus JSONL: readable by regulators without RiskForge installed, and diff-able in GitHub PRs.
 
 ---
 
-## AI Exponent compliance toolchain — planned integration
+## AI Exponent compliance toolchain, planned integration
 
 RiskForge is designed to integrate with the broader AI Exponent toolchain. Today, only RiskForge and rag-benchmarking are available on PyPI. The other nodes below are on the public roadmap and will integrate via plain JSON files when they ship.
 
@@ -197,19 +217,19 @@ Before every export, `riskforge validate` runs 8 gates:
 
 | Feature | Detail |
 |---|---|
-| **Offline-first** | Zero outbound calls after `pip install` — enforced by `pytest-socket` CI gate |
+| **Offline-first** | Zero outbound calls after `pip install`, enforced by `pytest-socket` CI gate |
 | **Hash-chained audit** | Every mutation appended to `audit.jsonl` with atomic file locks; `riskforge verify` exits code 2 on tampering |
 | **Schema-validated exports** | Every JSON export validated against `rmf.schema.json` before writing |
-| **PDF export** | WeasyPrint + Jinja2 — no LibreOffice or `wkhtmltopdf` required |
-| **Pattern matching** | 6 pre-built risk patterns for common Annex III use cases (credit scoring, hiring, facial recognition, medical imaging, content moderation, criminal risk assessment) — community contributions extend the library |
-| **Plugin extensible** | Add question banks, exporters, adapters via `pip install` — no config edit required |
-| **Git-friendly state** | YAML + JSONL files — human-readable, diff-able, merge-conflict-resolvable |
+| **PDF export** | WeasyPrint + Jinja2, no LibreOffice or `wkhtmltopdf` required |
+| **Pattern matching** | 6 pre-built risk patterns for common Annex III use cases (credit scoring, hiring, facial recognition, medical imaging, content moderation, criminal risk assessment), community contributions extend the library |
+| **Plugin extensible** | Add question banks, exporters, adapters via `pip install`, no config edit required |
+| **Git-friendly state** | YAML + JSONL files, human-readable, diff-able, merge-conflict-resolvable |
 
 ---
 
 ## Contributing
 
-**The easiest contribution requires zero Python** — edit a YAML file and open a PR.
+**The easiest contribution requires zero Python**, edit a YAML file and open a PR.
 
 **Add a question** to an existing dimension:
 
@@ -227,9 +247,9 @@ Before every export, `riskforge validate` runs 8 gates:
   regulatory_status: settled
 ```
 
-**Add a risk pattern** — edit `src/riskforge/_data/patterns/patterns.yaml`.
+**Add a risk pattern**, edit `src/riskforge/_data/patterns/patterns.yaml`.
 
-**Fix a bug or add a feature** — see [CONTRIBUTING.md](CONTRIBUTING.md).
+**Fix a bug or add a feature**, see [CONTRIBUTING.md](CONTRIBUTING.md).
 
 ```bash
 git clone https://github.com/aiexponenthq/riskforge
@@ -268,9 +288,9 @@ Your AI system's risk data never leaves your machine unless you explicitly deplo
 
 ## License
 
-[Apache 2.0](LICENSE) — free to use, modify, and distribute.
+[Apache 2.0](LICENSE), free to use, modify, and distribute.
 
-Built by [AI Exponent LLC](https://aiexponent.com) — `hello@aiexponent.com`
+Built by [AI Exponent LLC](https://aiexponent.com), `hello@aiexponent.com`
 
 ---
 
