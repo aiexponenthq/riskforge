@@ -268,7 +268,7 @@ make lint        # ruff check + format
 RiskForge makes **zero outbound network connections** in CLI mode, enforced in CI with `pytest-socket --disable-socket`.
 
 ```
-RiskForge v1.1.1 | Apache 2.0 | Zero telemetry | aiexponent.com
+RiskForge v1.1.2 | Apache 2.0 | Zero telemetry | aiexponent.com
 ```
 
 Your AI system's risk data never leaves your machine unless you explicitly deploy the optional API server (`pip install riskforge[server]`). That server is **experimental**: it is not security-hardened and is not part of the flagship test suite, so run it only on a trusted, local network.
@@ -279,7 +279,8 @@ Your AI system's risk data never leaves your machine unless you explicitly deplo
 
 | Version | Highlights |
 |---|---|
-| **[v1.1.1](https://github.com/aiexponenthq/riskforge/releases/tag/v1.1.1)** | Schema hardening: the mandatory not-legal-advice disclosure is now enforced by the RMF JSON Schema (required, non-empty), not only injected at export. |
+| **[v1.1.2](https://github.com/aiexponenthq/riskforge/releases/tag/v1.1.2)** | Documentation now points at the in-repo guides (full user guide, Article 9 mapping, audit-chain design with diagrams); the PyPI docs link is absolute and a `docs/` index was added. |
+| [v1.1.1](https://github.com/aiexponenthq/riskforge/releases/tag/v1.1.1) | Schema hardening: the mandatory not-legal-advice disclosure is now enforced by the RMF JSON Schema (required, non-empty), not only injected at export. |
 | [v1.1.0](https://github.com/aiexponenthq/riskforge/releases/tag/v1.1.0) | Release-hardening pass: six correctness fixes, O(n) audit append, worked examples with a determinism harness, a full user guide, benchmarks, and single-source versioning. |
 | [v1.0.0](https://github.com/aiexponenthq/riskforge/releases/tag/v1.0.0) | First Production/Stable release. Click 8.3 regression fixed; LICENSE realigned to canonical SPDX; PRD amended to ship reality (37 questions, 6 patterns); coverage floor 24→55. |
 | [v0.1.4](https://github.com/aiexponenthq/riskforge/releases/tag/v0.1.4) | CI fixes: lint version compat, format alignment, `--sys-version` rename |
