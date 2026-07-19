@@ -8,8 +8,8 @@ Thank you for your interest in contributing. RiskForge is an open-source EU AI A
 
 **The easiest contribution requires zero Python.** The two highest-value contributions are:
 
-1. **Add a question** to an existing risk dimension — edit one YAML file, open a PR.
-2. **Add a risk pattern** for a new Annex III use case — add a YAML block, open a PR.
+1. **Add a question** to an existing risk dimension, edit one YAML file, open a PR.
+2. **Add a risk pattern** for a new Annex III use case, add a YAML block, open a PR.
 
 Both paths are documented in detail in [`docs/contributing/`](docs/contributing/).
 
@@ -21,7 +21,7 @@ Both paths are documented in detail in [`docs/contributing/`](docs/contributing/
 git clone https://github.com/aiexponenthq/riskforge
 cd riskforge
 make dev-setup      # pip install -e ".[dev]" + pre-commit install
-make test           # run full test suite (57 tests as of v1.0.0; run `pytest --collect-only -q | tail -1` for the canonical count on `main`)
+make test           # run the full test suite (all tests must pass; run `pytest --collect-only -q` for the current count)
 make lint           # ruff check + format
 ```
 
@@ -61,7 +61,7 @@ Edit `src/riskforge/_data/question_bank/<dimension>.yaml` and add a question blo
 
 Run `make test` to verify the YAML is valid. See full guide: [`docs/contributing/add-question.md`](docs/contributing/add-question.md).
 
-**Note:** Changes to the question bank require legal team approval before merge. The CI pipeline enforces this via a GitHub Environment gate.
+**Note:** Question-bank changes carry regulatory weight. Flag them clearly in your PR so a maintainer can arrange an EU AI Act counsel review before merge. This is a maintainer review policy, not an automated CI gate.
 
 ### 2. Add a risk pattern (no Python required)
 
@@ -69,7 +69,7 @@ Add a YAML block to `src/riskforge/_data/patterns/patterns.yaml`:
 
 ```yaml
 - pattern_id: MY_PATTERN
-  name: "Use Case — Key Risk"
+  name: "Use Case, Key Risk"
   description: "Brief description of why this pattern matters."
   triggers:
     annex_iii_categories: [employment]
@@ -98,8 +98,8 @@ Implement the `Exporter` ABC and register via entry point. See [`docs/contributi
 3. Create a branch: `git checkout -b fix/short-description`
 4. Write a test that covers the change
 5. Implement the change
-6. Run `make test` — all tests must pass, no new failures (`pytest --collect-only -q | tail -1` reports the canonical count for the version on `main`)
-7. Run `make lint` — no ruff errors
+6. Run `make test`, all tests must pass, no new failures (`pytest --collect-only -q | tail -1` reports the canonical count for the version on `main`)
+7. Run `make lint`, no ruff errors
 8. Open a pull request against `main`
 
 ---
@@ -109,10 +109,10 @@ Implement the `Exporter` ABC and register via entry point. See [`docs/contributi
 RiskForge has four strictly-decoupled layers. **Never import across boundaries:**
 
 ```
-CLI (riskforge/cli/)       — thin commands; calls engine functions only
-Engine (riskforge/engine/) — all business logic; no CLI/server imports
-Storage (riskforge/storage/) — FileStore and StorageBackend ABC
-Server (riskforge/server/) — optional FastAPI; never imported by CLI
+CLI (riskforge/cli/):       thin commands; calls engine functions only
+Engine (riskforge/engine/): all business logic; no CLI/server imports
+Storage (riskforge/storage/): FileStore and StorageBackend ABC
+Server (riskforge/server/): optional FastAPI; never imported by CLI
 ```
 
 The CI pipeline enforces this with AST-based import boundary tests (ADR-02).
@@ -123,10 +123,10 @@ Key rule: if your change adds a `from riskforge.cli import ...` in engine code, 
 
 ## Tests
 
-- Unit tests: `tests/unit/` — fast, no I/O
-- Contract tests: `tests/contract/` — JSON schema validation
-- Boundary tests: `tests/boundary/` — import enforcement
-- Integration tests: `tests/integration/` — end-to-end CLI pipeline
+- Unit tests: `tests/unit/`, fast, no I/O
+- Contract tests: `tests/contract/`, JSON schema validation
+- Boundary tests: `tests/boundary/`, import enforcement
+- Integration tests: `tests/integration/`, end-to-end CLI pipeline
 
 All tests must pass before merge. New features must include tests.
 
