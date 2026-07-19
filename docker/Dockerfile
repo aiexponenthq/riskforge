@@ -1,4 +1,4 @@
-# RiskForge — Docker image for team server deployment
+# RiskForge Docker image for the experimental API server (riskforge serve)
 # Stage 1: builder
 FROM python:3.11-slim AS builder
 

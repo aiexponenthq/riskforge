@@ -10,7 +10,7 @@ RiskForge needs a storage mechanism for project state (system metadata, risk reg
 
 ## Decision
 
-Project state lives in `.riskforge/` (YAML + JSONL files). Not SQLite. Not PostgreSQL by default.
+Project state lives in `.riskforge/` (YAML + JSONL files). Not SQLite. Not PostgreSQL.
 
 ## Rationale
 
@@ -21,8 +21,8 @@ Project state lives in `.riskforge/` (YAML + JSONL files). Not SQLite. Not Postg
 
 ## Trade-offs Accepted
 
-No concurrent writes in CLI mode. Teams needing concurrent access use `riskforge serve` with SQLiteStore (Team tier) or PostgreSQLStore (Enterprise tier).
+No concurrent writes in CLI mode. Concurrent multi-user access is not supported today: the optional, experimental `riskforge serve` still reads and writes the same file-based store. The `StorageBackend` ABC leaves room for a concurrent backend (for example a relational database) in a future release, but none ships yet.
 
 ## Enforcement
 
-The `StorageBackend` ABC defines the interface. All storage implementations must conform to the async method signature. The FileStore is the default; alternative backends are separate PyPI packages.
+The `StorageBackend` ABC defines the interface. All storage implementations must conform to the async method signature. FileStore is the only backend that ships today; the ABC exists so a future backend can be added without changing the engine.
