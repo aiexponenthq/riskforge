@@ -6,6 +6,8 @@ Versioning: [Semantic Versioning](https://semver.org/)
 
 ## [Unreleased]
 
+## [1.1.1] - 2026-07-19
+
 ### Changed
 
 - The RMF JSON Schema now requires a non-empty `disclosure` field (`required` plus `minLength: 1`). The mandatory not-legal-advice disclosure was always injected by the export path, but the schema did not enforce it, so a hand-crafted or downstream-tampered Risk Management File could validate without it. Export already fails loud when the disclosure is absent, and any downstream consumer validating against the bundled schema now rejects a disclosure-less document.
