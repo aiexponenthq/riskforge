@@ -462,6 +462,91 @@ def test_export_records_audit_entry_hash_in_file() -> None:
 
 
 @pytest.mark.enable_socket
+def test_risk_mitigate_adds_mitigation_and_rescores() -> None:
+    """`risk mitigate` adds a mitigation via the CLI, re-scores residual, audits, and exports."""
+    import asyncio
+
+    from riskforge.storage.filesystem import FileStore
+
+    with tempfile.TemporaryDirectory() as tmp:
+        d = Path(tmp)
+        sid = _init_project(d, "Mitigate System")
+        _seed_register(d, sid, one_dim=True)
+        rid = str(asyncio.run(FileStore(d).read_register(sid)).items[0].id)[:8]
+
+        res = _run(
+            [
+                "risk",
+                "mitigate",
+                sid,
+                rid,
+                "-m",
+                "Remove postcode feature; add demographic parity monitoring.",
+                "-c",
+                "preventive",
+                "--owner",
+                "ML Platform",
+                "--status",
+                "implemented",
+                "--residual-likelihood",
+                "1",
+                "--residual-severity",
+                "1",
+                "--project-dir",
+                str(d),
+            ]
+        )
+        assert res.returncode == 0, f"mitigate failed:\n{res.output}"
+
+        reg = asyncio.run(FileStore(d).read_register(sid))
+        assert len(reg.items[0].mitigations) == 1
+        assert reg.items[0].residual_risk_score == 1
+        assert _run(["verify", "--project-dir", str(d)]).returncode == 0
+
+        out = d / "rmf.json"
+        assert (
+            _run(
+                ["export", sid, "-f", "json", "-o", str(out), "--force", "--project-dir", str(d)]
+            ).returncode
+            == 0
+        )
+        rmf = json.loads(out.read_text())
+        assert any(i["mitigations"] for i in rmf["register"]["items"])
+
+
+@pytest.mark.enable_socket
+def test_risk_mitigate_flags_vague() -> None:
+    """A vague mitigation description is flagged to the user."""
+    import asyncio
+
+    from riskforge.storage.filesystem import FileStore
+
+    with tempfile.TemporaryDirectory() as tmp:
+        d = Path(tmp)
+        sid = _init_project(d, "Vague System")
+        _seed_register(d, sid, one_dim=True)
+        rid = str(asyncio.run(FileStore(d).read_register(sid)).items[0].id)[:8]
+        res = _run(
+            [
+                "risk",
+                "mitigate",
+                sid,
+                rid,
+                "-m",
+                "we'll monitor it",
+                "-c",
+                "detective",
+                "--owner",
+                "X",
+                "--project-dir",
+                str(d),
+            ]
+        )
+        assert res.returncode == 0, res.output
+        assert "vague" in res.output.lower()
+
+
+@pytest.mark.enable_socket
 def test_risk_list_shows_seeded_items() -> None:
     """riskforge risk list must return seeded items."""
     with tempfile.TemporaryDirectory() as tmp:

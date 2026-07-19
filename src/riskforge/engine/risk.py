@@ -5,7 +5,7 @@ from __future__ import annotations
 import hashlib
 
 from riskforge.engine.audit import AuditEngine
-from riskforge.models.risk import Mitigation, RiskDimension, RiskItem
+from riskforge.models.risk import Likelihood, Mitigation, RiskDimension, RiskItem, Severity
 from riskforge.storage.base import StorageBackend
 
 VAGUE_PHRASES = {
@@ -91,6 +91,34 @@ class RiskEngine:
                 "old_accepted": old_accepted,
                 "rationale_hash": self._hash_rationale(rationale),
                 "actor": actor_identity,
+            },
+        )
+        return item
+
+    async def add_mitigation(
+        self,
+        system_id: str,
+        risk_id: str,
+        mitigation: Mitigation,
+        residual_likelihood: int | None = None,
+        residual_severity: int | None = None,
+    ) -> RiskItem:
+        """Append a mitigation to a risk item and optionally re-score residual risk."""
+        register = await self._storage.read_register(system_id)
+        item = self._resolve_risk_item(register.items, risk_id)
+        item.mitigations.append(self._flag_vague(mitigation))
+        if residual_likelihood is not None:
+            item.residual_likelihood = Likelihood(residual_likelihood)
+        if residual_severity is not None:
+            item.residual_severity = Severity(residual_severity)
+        await self._storage.write_register(system_id, register)
+        await self._audit.record(
+            "mitigation.added",
+            system_id,
+            {
+                "risk_item_id": str(item.id),
+                "control_type": mitigation.control_type,
+                "is_vague": mitigation.is_vague,
             },
         )
         return item
