@@ -565,6 +565,89 @@ def test_serve_refuses_external_bind_without_allow_external() -> None:
 
 
 @pytest.mark.enable_socket
+def test_rmf_export_structure_is_locked() -> None:
+    """Lock the exported RMF top-level + mitigation key sets (guards model/schema drift, e.g. B1)."""
+    import asyncio
+
+    from riskforge.engine.audit import AuditEngine
+    from riskforge.engine.risk import RiskEngine
+    from riskforge.models.audit import AuditActor
+    from riskforge.models.risk import Mitigation
+    from riskforge.storage.filesystem import FileStore
+
+    with tempfile.TemporaryDirectory() as tmp:
+        d = Path(tmp)
+        sid = _init_project(d, "Structure System")
+        _seed_register(d, sid, one_dim=True)
+
+        async def _add_mit():
+            store = FileStore(d)
+            audit = AuditEngine(store, AuditActor(type="ci", identity="t"))
+            eng = RiskEngine(store, audit)
+            reg = await store.read_register(sid)
+            await eng.add_mitigation(
+                sid,
+                str(reg.items[0].id),
+                Mitigation(
+                    description="Specific documented control.",
+                    control_type="preventive",
+                    owner="ML",
+                    status="implemented",
+                    article_ref="Art.9(2)(d)",
+                    nist_rmf_ref="MANAGE 1.3",
+                ),
+            )
+
+        asyncio.run(_add_mit())
+
+        out = d / "rmf.json"
+        assert (
+            _run(
+                ["export", sid, "-f", "json", "-o", str(out), "--force", "--project-dir", str(d)]
+            ).returncode
+            == 0
+        )
+        rmf = json.loads(out.read_text())
+
+        assert set(rmf) == {
+            "id",
+            "rmf_schema_version",
+            "register",
+            "test_requirements",
+            "cross_references",
+            "generated_at",
+            "sha256_hash",
+            "signed_by",
+            "audit_entry_hash",
+            "disclosure",
+        }
+        mit = next(m for i in rmf["register"]["items"] for m in i["mitigations"])
+        assert set(mit) == {
+            "id",
+            "description",
+            "control_type",
+            "owner",
+            "status",
+            "evidence_refs",
+            "is_vague",
+            "article_ref",
+            "nist_rmf_ref",
+        }
+        assert rmf["disclosure"]
+
+        md = d / "rmf.md"
+        assert (
+            _run(
+                ["export", sid, "-f", "markdown", "-o", str(md), "--force", "--project-dir", str(d)]
+            ).returncode
+            == 0
+        )
+        md_text = md.read_text()
+        assert "# Risk Management File" in md_text
+        assert "## Risk Items" in md_text
+
+
+@pytest.mark.enable_socket
 def test_risk_list_shows_seeded_items() -> None:
     """riskforge risk list must return seeded items."""
     with tempfile.TemporaryDirectory() as tmp:

@@ -26,15 +26,18 @@ jobs:
           pip install build pip-audit bandit
           pip install ".[dev]"
 
-      - name: Security gates (advisory)
+      - name: Security gates
+        # Same posture as ci.yml: bandit gates on medium+; pip-audit gates with the
+        # documented waivers (RiskForge is not exposed; see ci.yml for justifications).
         run: |
-          bandit -ll -r src/ --exit-zero
-          pip-audit --strict || true
+          bandit -ll -r src/
+          pip-audit --strict \
+            --ignore-vuln PYSEC-2026-2132 \
+            --ignore-vuln PYSEC-2026-3412 \
+            --ignore-vuln PYSEC-2026-3447
 
-      - name: Run unit, contract and boundary tests
-        # Integration tests require a TTY-aware subprocess; CI workflow covers them.
-        # Release pipeline runs the fast, reliable test tiers only.
-        run: pytest --cov --ignore=tests/integration/
+      - name: Run the full test suite
+        run: pytest --cov
 
       - name: Build wheel + sdist
         run: python -m build
@@ -43,10 +46,12 @@ jobs:
         run: ls -lh dist/
 
       - name: Generate CycloneDX SBOM
+        # No `|| true`: a failed SBOM must fail the release, since it is attached to
+        # the GitHub Release below. `--output-format JSON --outfile` is the correct
+        # cyclonedx-bom 4.x invocation (the previous `--format json` flag does not exist).
         run: |
           pip install "cyclonedx-bom<5"
-          cyclonedx-py environment -o sbom.cdx.json --format json || \
-          cyclonedx-py environment > sbom.cdx.json || true
+          cyclonedx-py environment --output-format JSON --outfile sbom.cdx.json
 
       - name: Attest build provenance (GitHub + Sigstore)
         uses: actions/attest-build-provenance@v4
