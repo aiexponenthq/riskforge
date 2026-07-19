@@ -51,18 +51,37 @@ def cmd(
         None, "--dimension", help="Scope to a single dimension (e.g. privacy)"
     ),
     review_months: int = typer.Option(12, "--review-months", help="Months until next review"),
+    answers: Optional[Path] = typer.Option(
+        None, "--answers", help="YAML answers file for a non-interactive assessment (for CI)"
+    ),
 ) -> None:
-    """Run the interactive 8-dimension Article 9 risk assessment.
+    """Run the 8-dimension Article 9 risk assessment.
 
-    Walks through each EU AI Act risk dimension, presents questions from the
-    question bank, prompts for likelihood and severity scores, and writes
-    every risk item to the register with a hash-chained audit entry.
+    Interactive by default: walks through each EU AI Act risk dimension, presents
+    questions from the question bank, prompts for likelihood and severity scores,
+    and writes every risk item to the register with a hash-chained audit entry.
+
+    With --answers <file.yaml>, runs the same assessment non-interactively from a
+    YAML answers file (suitable for CI re-assessment and reproducible fixtures).
 
     After completing the session, run:
 
         riskforge validate <system_id>
         riskforge export <system_id> --format pdf
     """
+    if answers is not None:
+        asyncio.run(
+            _run_noninteractive(
+                system_id=system_id,
+                project_dir=project_dir,
+                assessor_name=assessor_name,
+                assessor_role=assessor_role,
+                dimension_filter=dimension,
+                review_months=review_months,
+                answers_path=answers,
+            )
+        )
+        return
     asyncio.run(
         _run_assess(
             system_id=system_id,
@@ -373,3 +392,193 @@ async def _run_assess(
             f"  riskforge tests generate [dim]{system_id}[/dim]  "
             f"[dim]({gaps_added} test requirement(s) to derive)[/dim]"
         )
+
+
+async def _run_noninteractive(
+    system_id: str,
+    project_dir: Path,
+    assessor_name: str,
+    assessor_role: str,
+    dimension_filter: Optional[str],
+    review_months: int,
+    answers_path: Path,
+) -> None:
+    """File-driven assessment: same engine path as interactive, no prompts.
+
+    Setup mirrors _run_assess; only the answer source differs (a YAML file rather
+    than questionary). Kept separate so the interactive, TTY-only path is untouched.
+    """
+    import yaml
+
+    from riskforge.engine.assess import AssessEngine
+    from riskforge.engine.audit import AuditEngine
+    from riskforge.engine.risk import RiskEngine
+    from riskforge.models.audit import AuditActor
+    from riskforge.models.register import RiskRegister
+    from riskforge.models.risk import Likelihood, RiskDimension, RiskItem, Severity
+    from riskforge.storage.filesystem import FileStore
+
+    if not answers_path.exists():
+        console.print(f"[red]✗[/red] Answers file not found: {answers_path}")
+        raise typer.Exit(1)
+    try:
+        answers_doc = yaml.safe_load(answers_path.read_text()) or {}
+    except yaml.YAMLError as exc:
+        console.print(f"[red]✗[/red] Could not parse answers file: {exc}")
+        raise typer.Exit(1)
+    if not isinstance(answers_doc, dict):
+        console.print("[red]✗[/red] Answers file must be a YAML mapping.")
+        raise typer.Exit(1)
+    answers = answers_doc.get("answers", {}) or {}
+    if not isinstance(answers, dict):
+        console.print("[red]✗[/red] 'answers' must be a mapping of question id to answer.")
+        raise typer.Exit(1)
+    add_patterns = bool(answers_doc.get("add_patterns", True))
+
+    store = FileStore(project_dir)
+    is_valid, violations = await store.verify_chain()
+    if not is_valid:
+        console.print(f"[red]✗[/red] Audit chain is corrupt: {violations}")
+        raise typer.Exit(2)
+
+    actor = AuditActor(type="human", identity=assessor_name)
+    audit = AuditEngine(store, actor)
+    risk_engine = RiskEngine(store, audit)
+
+    import riskforge._data as _data_pkg  # noqa: PLC0415
+
+    assess = AssessEngine(Path(_data_pkg.__file__).parent)
+
+    try:
+        system = await store.read_system(system_id)
+    except FileNotFoundError:
+        console.print(
+            f"[red]✗[/red] System [bold]{system_id}[/bold] not found in {project_dir}. "
+            "Run riskforge init first."
+        )
+        raise typer.Exit(1)
+
+    try:
+        register = await store.read_register(system_id)
+        _ = register
+    except FileNotFoundError:
+        register = RiskRegister(
+            system=system,
+            assessor_name=assessor_name,
+            assessor_role=assessor_role,
+            assessment_date=datetime.now(UTC),
+            review_date=datetime.now(UTC) + timedelta(days=30 * review_months),
+            question_bank_version="1.0.0",
+        )
+        await store.write_register(system_id, register)
+
+    # Pattern injection (identical to the interactive path)
+    purpose_words = system.purpose.lower().split()
+    category_str = str(system.annex_iii_category.value) if system.annex_iii_category else ""
+    matched_patterns = assess.match_patterns(category_str, purpose_words)
+    pattern_count = 0
+    if add_patterns:
+        for pattern in matched_patterns:
+            for risk_spec in pattern.get("risks", []):
+                lh_hint = risk_spec.get("likelihood_hint", 3)
+                sv_hint = risk_spec.get("severity_hint", 3)
+                await risk_engine.add_risk(
+                    system_id,
+                    RiskItem(
+                        dimension=RiskDimension(risk_spec["dimension"]),
+                        title=risk_spec["title"][:120],
+                        description=risk_spec.get("description", risk_spec["title"]),
+                        source="pattern",
+                        likelihood=Likelihood(lh_hint),
+                        severity=Severity(sv_hint),
+                        residual_likelihood=Likelihood(lh_hint),
+                        residual_severity=Severity(sv_hint),
+                        article_refs=risk_spec.get("article_refs", []),
+                        nist_rmf_ref=risk_spec.get("nist_rmf_ref", ""),
+                        iso42001_ref=risk_spec.get("iso42001_ref", ""),
+                        tags=[f"pattern:{pattern['pattern_id']}"],
+                    ),
+                )
+                pattern_count += 1
+
+    if dimension_filter:
+        try:
+            dims_to_run = [RiskDimension(dimension_filter)]
+        except ValueError:
+            valid = [d.value for d in RiskDimension]
+            console.print(
+                f"[red]✗[/red] Unknown dimension '{dimension_filter}'. Valid: {', '.join(valid)}"
+            )
+            raise typer.Exit(1)
+    else:
+        dims_to_run = list(RiskDimension)
+
+    risks_added = 0
+    gaps_added = 0
+    skipped = 0
+    leftover = set(answers)
+    for dim in dims_to_run:
+        for question in assess.load_questions(dim):
+            qid = question.get("id", "")
+            leftover.discard(qid)
+            ans = answers.get(qid)
+            if ans is None:
+                skipped += 1
+                continue
+            if not isinstance(ans, dict):
+                console.print(f"[red]✗[/red] Answer for {qid} must be a mapping.")
+                raise typer.Exit(1)
+            # YAML parses bare yes/no as booleans; normalise them back.
+            raw_applies = ans.get("applies", "skip")
+            if raw_applies is True:
+                applies = "yes"
+            elif raw_applies is False:
+                applies = "no"
+            else:
+                applies = str(raw_applies).lower()
+            if applies == "no":
+                continue
+            if applies == "skip":
+                skipped += 1
+                continue
+            if applies == "unknown":
+                likelihood = int(question.get("default_likelihood_hint") or 3)
+                severity = int(question.get("default_severity_hint") or 3)
+                is_unknown = True
+                gaps_added += 1
+            elif applies == "yes":
+                if "likelihood" not in ans or "severity" not in ans:
+                    console.print(
+                        f"[red]✗[/red] Answer for {qid} has applies: yes but no likelihood/severity."
+                    )
+                    raise typer.Exit(1)
+                likelihood = int(ans["likelihood"])
+                severity = int(ans["severity"])
+                is_unknown = False
+                risks_added += 1
+            else:
+                console.print(
+                    f"[red]✗[/red] Answer for {qid} has invalid applies '{applies}' "
+                    "(use yes, no, unknown, or skip)."
+                )
+                raise typer.Exit(1)
+            await risk_engine.add_risk(
+                system_id,
+                assess.question_to_risk_item(
+                    question, dim, likelihood, severity, answer_unknown=is_unknown
+                ),
+            )
+
+    if leftover:
+        console.print(
+            f"[yellow]![/yellow] Ignored {len(leftover)} answer id(s) not in the question bank "
+            f"for the selected dimension(s): {', '.join(sorted(leftover))}"
+        )
+
+    register_now = await store.read_register(system_id)
+    console.print(
+        f"[green]✓[/green] Non-interactive assessment complete: "
+        f"{pattern_count} pattern, {risks_added} scored, {gaps_added} knowledge-gap item(s), "
+        f"{skipped} skipped. Total in register: {len(register_now.items)}."
+    )
+    console.print(f"\nNext: [bold]riskforge validate {system_id}[/bold]")
